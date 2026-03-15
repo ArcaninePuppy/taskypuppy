@@ -80,10 +80,23 @@ export default function App() {
   const [showDataDetails, setShowDataDetails] = useState(false);
   const [hasLoadedFromStorage, setHasLoadedFromStorage] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth <= 640 : false
+  );
+
   const importInputRef = useRef(null);
   const dataPanelRef = useRef(null);
   const stickerPanelRef = useRef(null);
   const starPanelRef = useRef(null);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 640);
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   function closeAllPanels() {
     setShowDataInfo(false);
@@ -1177,17 +1190,60 @@ export default function App() {
       flexWrap: "wrap",
     },
     topBar: {
+      display: "grid",
+      gap: "10px",
+      marginBottom: "20px",
+    },
+    headerMain: {
       display: "flex",
       justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "20px",
-      gap: "12px",
+      alignItems: "flex-start",
+      gap: "16px",
+      flexWrap: "nowrap",
     },
     titleWrap: {
       display: "flex",
       alignItems: "center",
       gap: "18px",
-      flexWrap: "wrap",
+      minWidth: 0,
+    },
+    titleMobileRow: {
+      marginTop: "8px",
+      display: "flex",
+      justifyContent: "center",
+    },
+    titleTextMobile: {
+      margin: 0,
+      fontSize: "34px",
+      color: theme.title,
+      fontFamily: TITLE_FONT,
+      fontWeight: 700,
+      letterSpacing: "0.3px",
+      lineHeight: 1.05,
+      textAlign: "center",
+      whiteSpace: "nowrap",
+    },
+    headerRight: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "12px",
+      minWidth: "160px",
+      flexShrink: 0,
+    },
+    headerButtons: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+      width: "100%",
+    },
+    headerButton: {
+      width: "100%",
+      minHeight: "52px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      boxSizing: "border-box",
     },
     titleSticker: {
       width: "140px",
@@ -1231,6 +1287,7 @@ export default function App() {
       fontFamily: BODY_FONT,
       background: theme.inputBg,
       color: theme.inputText,
+      minWidth: 0,
     },
     textarea: {
       width: "100%",
@@ -1255,6 +1312,7 @@ export default function App() {
       fontSize: "14px",
       fontFamily: BODY_FONT,
       fontWeight: 700,
+      boxSizing: "border-box",
     },
     buttonPrimary: {
       padding: "10px 14px",
@@ -1269,6 +1327,7 @@ export default function App() {
       boxShadow: darkMode
         ? "0 6px 16px rgba(59, 130, 246, 0.18)"
         : "0 6px 16px rgba(59, 130, 246, 0.22)",
+      boxSizing: "border-box",
     },
     smallButton: {
       padding: "4px 8px",
@@ -1303,8 +1362,8 @@ export default function App() {
     stickerMenu: {
       position: "absolute",
       right: 0,
-      top: "36px",
-      width: "380px",
+      top: "58px",
+      width: "min(380px, calc(100vw - 32px))",
       background: theme.panelBg,
       borderRadius: "16px",
       boxShadow: darkMode
@@ -1313,6 +1372,7 @@ export default function App() {
       padding: "14px",
       zIndex: 10,
       border: `1px solid ${theme.border}`,
+      boxSizing: "border-box",
     },
     stickerMessage: {
       marginTop: "8px",
@@ -1392,7 +1452,7 @@ export default function App() {
       position: "absolute",
       right: 0,
       top: "48px",
-      width: "380px",
+      width: "min(380px, calc(100vw - 32px))",
       background: theme.panelBg,
       borderRadius: "16px",
       boxShadow: darkMode
@@ -1401,12 +1461,13 @@ export default function App() {
       padding: "14px",
       zIndex: 10,
       border: `1px solid ${theme.border}`,
+      boxSizing: "border-box",
     },
     starPanel: {
       position: "absolute",
       right: 0,
       top: "34px",
-      width: "300px",
+      width: "min(300px, calc(100vw - 32px))",
       background: theme.panelBg,
       borderRadius: "16px",
       boxShadow: darkMode
@@ -1415,6 +1476,7 @@ export default function App() {
       padding: "14px",
       zIndex: 10,
       border: `1px solid ${theme.border}`,
+      boxSizing: "border-box",
     },
     panelActionRow: {
       display: "grid",
@@ -1594,6 +1656,26 @@ export default function App() {
       fontWeight: 700,
       flexShrink: 0,
     },
+    archiveFilterGrid: {
+      display: "grid",
+      gap: "10px",
+      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+      width: "100%",
+    },
+    archiveFilterCell: {
+      minWidth: 0,
+      width: "100%",
+    },
+    archiveFilterAction: {
+      display: "flex",
+      alignItems: "end",
+      minWidth: 0,
+      width: "100%",
+    },
+    fullWidthButton: {
+      width: "100%",
+      boxSizing: "border-box",
+    },
   };
 
   return (
@@ -1706,6 +1788,14 @@ export default function App() {
           0% { opacity: 0; transform: translateY(4px); }
           100% { opacity: 1; transform: translateY(0); }
         }
+
+        @media (max-width: 640px) {
+          input[type="date"] {
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
+          }
+        }
       `}</style>
 
       <div style={styles.wrapper}>
@@ -1718,259 +1808,278 @@ export default function App() {
         />
 
         <div style={styles.topBar}>
-          <div style={styles.titleWrap}>
-            {titleSticker ? (
-              <img
-                src={titleSticker}
-                alt="Tasky Puppy mascot"
-                style={{
-                  ...styles.titleSticker,
-                  animation: "mascotIdle 5s ease-in-out infinite",
-                }}
-                onClick={handleTitleStickerClick}
-                title="Click for a little reward boost. Works when Stickers are turned on."
-              />
-            ) : (
-              <div
-                style={{
-                  ...styles.titleSticker,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "72px",
-                  animation: "mascotIdle 5s ease-in-out infinite",
-                }}
-                onClick={handleTitleStickerClick}
-                title="Click for a little reward boost. Works when Stickers are turned on."
-              >
-                🐶
-              </div>
-            )}
-
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "34px",
-                color: theme.title,
-                fontFamily: TITLE_FONT,
-                fontWeight: 700,
-                letterSpacing: "0.3px",
-              }}
-            >
-              Tasky Puppy ⭐
-            </h1>
-          </div>
-
-          <div style={{ ...styles.row, position: "relative" }}>
-            <div style={{ position: "relative" }} ref={starPanelRef}>
-              <div
-                style={{
-                  ...styles.row,
-                  fontWeight: 700,
-                  animation: pulseStar ? "pulseLite 0.6s ease" : "none",
-                  color: theme.title,
-                  cursor: "pointer",
-                }}
-                onClick={toggleStarPanel}
-                title="Click to edit stars"
-              >
-                <span>⭐</span>
-                <span>{displayStarCount}</span>
-              </div>
-
-              {showStarTools && (
-                <div style={styles.starPanel}>
-                  <div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>
-                    Star Tools
-                  </div>
-
-                  <div style={styles.helperText}>
-                    Displayed stars use the manual override when one is set. Otherwise they use
-                    the archive-counted total.
-                  </div>
-
-                  <div style={{ ...styles.helperText, marginTop: "8px" }}>
-                    Manual override:{" "}
-                    <strong>{starCountManual === null ? "Off" : starCountManual}</strong>
-                  </div>
-
-                  <div style={styles.helperText}>
-                    Calculated from archive: <strong>{starCountCalculated}</strong>
-                  </div>
-
-                  <div style={styles.helperText}>
-                    Displayed total: <strong>{displayStarCount}</strong>
-                  </div>
-
-                  <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
-                    <input
-                      style={styles.input}
-                      type="number"
-                      min="0"
-                      value={editingStarValue}
-                      onChange={(e) => setEditingStarValue(e.target.value)}
-                      placeholder="Edit displayed stars"
-                    />
-
-                    <div style={styles.starActionRow}>
-                      <button style={styles.starActionButton} onClick={applyManualStarCount}>
-                        Save Stars
-                      </button>
-
-                      <button style={styles.starActionButton} onClick={useCalculatedStarCount}>
-                        Use Counted
-                      </button>
-
-                      <button style={styles.starActionButton} onClick={resetStarCount}>
-                        Reset to 0
-                      </button>
-                    </div>
-                  </div>
+          <div style={styles.headerMain}>
+            <div style={styles.titleWrap}>
+              {titleSticker ? (
+                <img
+                  src={titleSticker}
+                  alt="Tasky Puppy mascot"
+                  style={{
+                    ...styles.titleSticker,
+                    animation: "mascotIdle 5s ease-in-out infinite",
+                  }}
+                  onClick={handleTitleStickerClick}
+                  title="Click for a little reward boost. Works when Stickers are turned on."
+                />
+              ) : (
+                <div
+                  style={{
+                    ...styles.titleSticker,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "72px",
+                    animation: "mascotIdle 5s ease-in-out infinite",
+                  }}
+                  onClick={handleTitleStickerClick}
+                  title="Click for a little reward boost. Works when Stickers are turned on."
+                >
+                  🐶
                 </div>
+              )}
+
+              {!isMobile && (
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: "34px",
+                    color: theme.title,
+                    fontFamily: TITLE_FONT,
+                    fontWeight: 700,
+                    letterSpacing: "0.3px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Tasky Puppy ⭐
+                </h1>
               )}
             </div>
 
-            <div style={{ position: "relative" }} ref={stickerPanelRef}>
-              <button
-                onClick={toggleStickerPanel}
-                style={{
-                  ...styles.button,
-                  color: stickersEnabled ? (darkMode ? "#a9d0ff" : "#2563eb") : theme.muted,
-                }}
-              >
-                ✨ Stickers
-              </button>
+            <div style={{ ...styles.headerRight, position: "relative" }}>
+              <div style={{ position: "relative" }} ref={starPanelRef}>
+                <div
+                  style={{
+                    ...styles.row,
+                    justifyContent: "center",
+                    fontWeight: 700,
+                    animation: pulseStar ? "pulseLite 0.6s ease" : "none",
+                    color: theme.title,
+                    cursor: "pointer",
+                  }}
+                  onClick={toggleStarPanel}
+                  title="Click to edit stars"
+                >
+                  <span>⭐</span>
+                  <span>{displayStarCount}</span>
+                </div>
 
-              {showStickerSettings && (
-                <div style={styles.stickerMenu}>
-                  <div
+                {showStarTools && (
+                  <div style={styles.starPanel}>
+                    <div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>
+                      Star Tools
+                    </div>
+
+                    <div style={styles.helperText}>
+                      Displayed stars use the manual override when one is set. Otherwise they use
+                      the archive-counted total.
+                    </div>
+
+                    <div style={{ ...styles.helperText, marginTop: "8px" }}>
+                      Manual override:{" "}
+                      <strong>{starCountManual === null ? "Off" : starCountManual}</strong>
+                    </div>
+
+                    <div style={styles.helperText}>
+                      Calculated from archive: <strong>{starCountCalculated}</strong>
+                    </div>
+
+                    <div style={styles.helperText}>
+                      Displayed total: <strong>{displayStarCount}</strong>
+                    </div>
+
+                    <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
+                      <input
+                        style={styles.input}
+                        type="number"
+                        min="0"
+                        value={editingStarValue}
+                        onChange={(e) => setEditingStarValue(e.target.value)}
+                        placeholder="Edit displayed stars"
+                      />
+
+                      <div style={styles.starActionRow}>
+                        <button style={styles.starActionButton} onClick={applyManualStarCount}>
+                          Save Stars
+                        </button>
+
+                        <button style={styles.starActionButton} onClick={useCalculatedStarCount}>
+                          Use Counted
+                        </button>
+
+                        <button style={styles.starActionButton} onClick={resetStarCount}>
+                          Reset to 0
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div style={styles.headerButtons}>
+                <div style={{ position: "relative" }} ref={stickerPanelRef}>
+                  <button
+                    onClick={toggleStickerPanel}
                     style={{
-                      ...styles.row,
-                      justifyContent: "space-between",
-                      marginBottom: "10px",
+                      ...styles.button,
+                      ...styles.headerButton,
+                      color: stickersEnabled ? (darkMode ? "#a9d0ff" : "#2563eb") : theme.muted,
                     }}
                   >
-                    <span style={{ fontWeight: 700, color: theme.title }}>
-                      Sticker Settings
-                    </span>
-                    <button
-                      onClick={() => setStickersEnabled(!stickersEnabled)}
-                      style={stickersEnabled ? styles.buttonPrimary : styles.button}
-                    >
-                      {stickersEnabled ? "On" : "Off"}
-                    </button>
-                  </div>
+                    ✨ Stickers
+                  </button>
 
-                  <div style={styles.helperText}>
-                    Built-in stickers load automatically from <code>src/assets/stickers</code>.
-                  </div>
-
-                  <div style={{ marginTop: "10px" }}>
-                    <button
-                      style={styles.button}
-                      onClick={() => setShowStickerGallery(!showStickerGallery)}
-                    >
-                      {showStickerGallery
-                        ? `Hide Sticker Gallery (${galleryStickers.length})`
-                        : `Sticker Gallery (${galleryStickers.length})`}
-                    </button>
-                  </div>
-
-                  {showStickerGallery && (
-                    <div style={{ marginTop: "10px", animation: "galleryFadeIn 0.18s ease" }}>
-                      <div style={styles.helperText}>
-                        Loaded stickers: {galleryStickers.length}. Hover for a gentle preview.
-                        Click or tap a sticker to expand it.
+                  {showStickerSettings && (
+                    <div style={styles.stickerMenu}>
+                      <div
+                        style={{
+                          ...styles.row,
+                          justifyContent: "space-between",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <span style={{ fontWeight: 700, color: theme.title }}>
+                          Sticker Settings
+                        </span>
+                        <button
+                          onClick={() => setStickersEnabled(!stickersEnabled)}
+                          style={stickersEnabled ? styles.buttonPrimary : styles.button}
+                        >
+                          {stickersEnabled ? "On" : "Off"}
+                        </button>
                       </div>
 
-                      {!hasUploadedGalleryStickers && (
-                        <div style={{ ...styles.helperText, marginTop: "6px" }}>
-                          Built-in
+                      <div style={styles.helperText}>
+                        Built-in stickers load automatically from <code>src/assets/stickers</code>.
+                      </div>
+
+                      <div style={{ marginTop: "10px" }}>
+                        <button
+                          style={styles.button}
+                          onClick={() => setShowStickerGallery(!showStickerGallery)}
+                        >
+                          {showStickerGallery
+                            ? `Hide Sticker Gallery (${galleryStickers.length})`
+                            : `Sticker Gallery (${galleryStickers.length})`}
+                        </button>
+                      </div>
+
+                      {showStickerGallery && (
+                        <div style={{ marginTop: "10px", animation: "galleryFadeIn 0.18s ease" }}>
+                          <div style={styles.helperText}>
+                            Loaded stickers: {galleryStickers.length}. Hover for a gentle preview.
+                            Click or tap a sticker to expand it.
+                          </div>
+
+                          {!hasUploadedGalleryStickers && (
+                            <div style={{ ...styles.helperText, marginTop: "6px" }}>
+                              Built-in
+                            </div>
+                          )}
+
+                          <div style={styles.galleryGrid}>
+                            {galleryStickers.map((sticker) => {
+                              const isHovered = hoveredGallerySticker === sticker.id;
+                              return (
+                                <div
+                                  key={sticker.id}
+                                  style={{
+                                    ...styles.galleryTile,
+                                    boxShadow: isHovered
+                                      ? darkMode
+                                        ? "0 8px 18px rgba(59, 130, 246, 0.18)"
+                                        : "0 8px 18px rgba(96, 165, 250, 0.2)"
+                                      : darkMode
+                                        ? "0 2px 8px rgba(2, 6, 23, 0.18)"
+                                        : "0 2px 8px rgba(148, 163, 184, 0.08)",
+                                    transform: isHovered ? "translateY(-2px)" : "translateY(0)",
+                                  }}
+                                  onMouseEnter={() => setHoveredGallerySticker(sticker.id)}
+                                  onMouseLeave={() => setHoveredGallerySticker(null)}
+                                  onClick={() => setExpandedGallerySticker(sticker)}
+                                  onTouchStart={() => setExpandedGallerySticker(sticker)}
+                                >
+                                  <img
+                                    src={sticker.src}
+                                    alt="Sticker preview"
+                                    style={{
+                                      ...styles.galleryThumb,
+                                      transform: isHovered ? "scale(1.15)" : "scale(1)",
+                                    }}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       )}
 
-                      <div style={styles.galleryGrid}>
-                        {galleryStickers.map((sticker) => {
-                          const isHovered = hoveredGallerySticker === sticker.id;
-                          return (
-                            <div
-                              key={sticker.id}
-                              style={{
-                                ...styles.galleryTile,
-                                boxShadow: isHovered
-                                  ? darkMode
-                                    ? "0 8px 18px rgba(59, 130, 246, 0.18)"
-                                    : "0 8px 18px rgba(96, 165, 250, 0.2)"
-                                  : darkMode
-                                    ? "0 2px 8px rgba(2, 6, 23, 0.18)"
-                                    : "0 2px 8px rgba(148, 163, 184, 0.08)",
-                                transform: isHovered ? "translateY(-2px)" : "translateY(0)",
-                              }}
-                              onMouseEnter={() => setHoveredGallerySticker(sticker.id)}
-                              onMouseLeave={() => setHoveredGallerySticker(null)}
-                              onClick={() => setExpandedGallerySticker(sticker)}
-                              onTouchStart={() => setExpandedGallerySticker(sticker)}
-                            >
-                              <img
-                                src={sticker.src}
-                                alt="Sticker preview"
-                                style={{
-                                  ...styles.galleryThumb,
-                                  transform: isHovered ? "scale(1.15)" : "scale(1)",
-                                }}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
+                      {stickersEnabled && (
+                        <>
+                          <div style={{ marginTop: "12px", ...styles.helperText }}>
+                            Use your own stickers! Choose a folder for convenience, or pick image
+                            files manually. Use PNG, JPEG, WEBP or GIF. Uploaded stickers must be
+                            512×512 or smaller.
+                          </div>
+
+                          <div style={{ display: "grid", gap: "8px", marginTop: "8px" }}>
+                            <label style={styles.helperText}>Choose a folder:</label>
+                            <input
+                              type="file"
+                              multiple
+                              webkitdirectory=""
+                              directory=""
+                              onChange={handleStickerFolder}
+                            />
+
+                            <label style={styles.helperText}>
+                              Or choose image files manually:
+                            </label>
+                            <input
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              onChange={handleStickerFolder}
+                            />
+                          </div>
+
+                          {stickerMessage && (
+                            <div style={styles.stickerMessage}>{stickerMessage}</div>
+                          )}
+                        </>
+                      )}
                     </div>
                   )}
-
-                  {stickersEnabled && (
-                    <>
-                      <div style={{ marginTop: "12px", ...styles.helperText }}>
-                        Use your own stickers! Choose a folder for convenience, or pick image files manually.
-                        Use PNG, JPEG, WEBP or GIF. Uploaded stickers must be 512×512 or smaller.
-                      </div>
-
-                      <div style={{ display: "grid", gap: "8px", marginTop: "8px" }}>
-                        <label style={styles.helperText}>Choose a folder:</label>
-                        <input
-                          type="file"
-                          multiple
-                          webkitdirectory=""
-                          directory=""
-                          onChange={handleStickerFolder}
-                        />
-
-                        <label style={styles.helperText}>
-                          Or choose image files manually:
-                        </label>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={handleStickerFolder}
-                        />
-                      </div>
-
-                      {stickerMessage && (
-                        <div style={styles.stickerMessage}>{stickerMessage}</div>
-                      )}
-                    </>
-                  )}
                 </div>
-              )}
-            </div>
 
-            <button
-              onClick={() => setDarkMode((prev) => !prev)}
-              style={darkMode ? styles.buttonPrimary : styles.button}
-              title="Toggle dark mode"
-            >
-              {darkMode ? "🌙 Dark" : "☀️ Light"}
-            </button>
+                <button
+                  onClick={() => setDarkMode((prev) => !prev)}
+                  style={{
+                    ...(darkMode ? styles.buttonPrimary : styles.button),
+                    ...styles.headerButton,
+                  }}
+                  title="Toggle dark mode"
+                >
+                  {darkMode ? "🌙 Dark" : "☀️ Light"}
+                </button>
+              </div>
+            </div>
           </div>
+
+          {isMobile && (
+            <div style={styles.titleMobileRow}>
+              <h1 style={styles.titleTextMobile}>Tasky Puppy ⭐</h1>
+            </div>
+          )}
         </div>
 
         <div style={{ ...styles.row, marginBottom: "14px", position: "relative" }}>
@@ -2069,7 +2178,8 @@ export default function App() {
 
                     <div style={{ ...styles.footerText, marginTop: "8px" }}>
                       In short: <strong>Emergency Restore</strong> is your local daily “oops”
-                      button, while <strong>Import JSON</strong> is your long-term moving-and-backup tool.
+                      button, while <strong>Import JSON</strong> is your long-term
+                      moving-and-backup tool.
                     </div>
 
                     <div style={{ ...styles.footerText, marginTop: "8px" }}>
@@ -2277,14 +2387,8 @@ export default function App() {
                   onChange={(e) => setArchiveSearch(e.target.value)}
                 />
 
-                <div
-                  style={{
-                    display: "grid",
-                    gap: "10px",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                  }}
-                >
-                  <div>
+                <div style={styles.archiveFilterGrid}>
+                  <div style={styles.archiveFilterCell}>
                     <div style={{ ...styles.muted, marginBottom: "4px" }}>Start Date</div>
                     <input
                       type="date"
@@ -2294,7 +2398,7 @@ export default function App() {
                     />
                   </div>
 
-                  <div>
+                  <div style={styles.archiveFilterCell}>
                     <div style={{ ...styles.muted, marginBottom: "4px" }}>End Date</div>
                     <input
                       type="date"
@@ -2304,9 +2408,9 @@ export default function App() {
                     />
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "end" }}>
+                  <div style={styles.archiveFilterAction}>
                     <button
-                      style={styles.button}
+                      style={{ ...styles.button, ...styles.fullWidthButton }}
                       onClick={() => {
                         setArchiveStartDate("");
                         setArchiveEndDate("");
