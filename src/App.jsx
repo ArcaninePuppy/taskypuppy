@@ -75,6 +75,7 @@ export default function App() {
   const [showStarTools, setShowStarTools] = useState(false);
   const [editingStarValue, setEditingStarValue] = useState("");
   const [pulseStar, setPulseStar] = useState(false);
+  const [headerCelebrate, setHeaderCelebrate] = useState(false);
 
   const [completingIds, setCompletingIds] = useState({});
   const [showDataInfo, setShowDataInfo] = useState(false);
@@ -89,6 +90,7 @@ export default function App() {
   const dataPanelRef = useRef(null);
   const stickerPanelRef = useRef(null);
   const starPanelRef = useRef(null);
+  const celebrateTimerRef = useRef(null);
 
   useEffect(() => {
     function handleResize() {
@@ -97,6 +99,14 @@ export default function App() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (celebrateTimerRef.current) {
+        clearTimeout(celebrateTimerRef.current);
+      }
+    };
   }, []);
 
   function closeAllPanels() {
@@ -239,7 +249,7 @@ export default function App() {
 
         const savedManual =
           parsed?.stars?.userModifiedTotal === null ||
-            typeof parsed?.stars?.userModifiedTotal === "number"
+          typeof parsed?.stars?.userModifiedTotal === "number"
             ? parsed.stars.userModifiedTotal
             : null;
 
@@ -408,6 +418,18 @@ export default function App() {
     return new Date().toISOString().slice(0, 10);
   }
 
+  function triggerHeaderCelebrate() {
+    setHeaderCelebrate(true);
+
+    if (celebrateTimerRef.current) {
+      clearTimeout(celebrateTimerRef.current);
+    }
+
+    celebrateTimerRef.current = setTimeout(() => {
+      setHeaderCelebrate(false);
+    }, 800);
+  }
+
   function addTask() {
     if (!taskName.trim()) return;
 
@@ -522,6 +544,7 @@ export default function App() {
 
       setPulseStar(true);
       setTimeout(() => setPulseStar(false), 600);
+      triggerHeaderCelebrate();
     }, 450);
   }
 
@@ -698,11 +721,11 @@ export default function App() {
       tasks.map((t) =>
         t.id === id
           ? {
-            ...t,
-            name: editingTaskName.trim() || t.name,
-            notes: editingNotes,
-            notesUpdatedAt: now,
-          }
+              ...t,
+              name: editingTaskName.trim() || t.name,
+              notes: editingNotes,
+              notesUpdatedAt: now,
+            }
           : t
       )
     );
@@ -1078,30 +1101,30 @@ export default function App() {
 
   const archiveEntries = hasArchiveFilters
     ? archiveGroups
-      .map((entry) => {
-        const filtered = entry.list.filter((task) => {
-          const q = archiveSearch.toLowerCase();
-          const taskISO = parseArchiveISO(task, entry.date) || entry.groupISO;
+        .map((entry) => {
+          const filtered = entry.list.filter((task) => {
+            const q = archiveSearch.toLowerCase();
+            const taskISO = parseArchiveISO(task, entry.date) || entry.groupISO;
 
-          const matchesSearch =
-            task.name.toLowerCase().includes(q) ||
-            (task.notes || "").toLowerCase().includes(q);
+            const matchesSearch =
+              task.name.toLowerCase().includes(q) ||
+              (task.notes || "").toLowerCase().includes(q);
 
-          const matchesStart =
-            !archiveStartDate || (taskISO && taskISO >= archiveStartDate);
+            const matchesStart =
+              !archiveStartDate || (taskISO && taskISO >= archiveStartDate);
 
-          const matchesEnd =
-            !archiveEndDate || (taskISO && taskISO <= archiveEndDate);
+            const matchesEnd =
+              !archiveEndDate || (taskISO && taskISO <= archiveEndDate);
 
-          return matchesSearch && matchesStart && matchesEnd;
-        });
+            return matchesSearch && matchesStart && matchesEnd;
+          });
 
-        return {
-          ...entry,
-          list: filtered,
-        };
-      })
-      .filter((entry) => entry.list.length > 0)
+          return {
+            ...entry,
+            list: filtered,
+          };
+        })
+        .filter((entry) => entry.list.length > 0)
     : archiveGroups.slice(0, 7);
 
   const galleryStickers = stickers.map((src, index) => ({
@@ -1113,73 +1136,73 @@ export default function App() {
 
   const theme = darkMode
     ? {
-      pageBg: "linear-gradient(180deg, #0f172a 0%, #162033 35%, #1b263b 100%)",
-      cardBg: "linear-gradient(180deg, #1d2a3f 0%, #22324a 100%)",
-      cardBgSoft: "#23324a",
-      panelBg: "linear-gradient(180deg, #1d2a3f 0%, #22324a 100%)",
-      border: "#3b4f6a",
-      borderSoft: "#4a5d78",
-      text: "#e5eefc",
-      title: "#9bc4ff",
-      muted: "#a9bdd8",
-      inputBg: "#162033",
-      inputBorder: "#41546f",
-      inputText: "#f8fbff",
-      buttonBg: "#22324a",
-      buttonBorder: "#4b6584",
-      buttonText: "#dbeafe",
-      buttonPrimaryBg: "linear-gradient(180deg, #4f8fd8 0%, #3b73b9 100%)",
-      buttonPrimaryBorder: "#72a7e5",
-      buttonPrimaryText: "#ffffff",
-      noteBg: "#162033",
-      noteBorder: "#3b4f6a",
-      noteText: "#d7e4f7",
-      dangerBg: "linear-gradient(180deg, #3a2328 0%, #47292f 100%)",
-      dangerBorder: "#8b5a63",
-      dangerText: "#ffd7df",
-      footerBorder: "#3b4f6a",
-      starTint: "rgba(147, 197, 253, 0.16)",
-      starActiveBg: "linear-gradient(180deg, #ffe58f 0%, #facc15 100%)",
-      starActiveBorder: "#fbbf24",
-      starActiveText: "#1f2937",
-      urgentActiveBg: "linear-gradient(180deg, #ffb072 0%, #fb923c 100%)",
-      urgentActiveBorder: "#f97316",
-      urgentActiveText: "#1f2937",
-    }
+        pageBg: "linear-gradient(180deg, #0f172a 0%, #162033 35%, #1b263b 100%)",
+        cardBg: "linear-gradient(180deg, rgba(37, 52, 74, 0.96) 0%, rgba(34, 50, 74, 0.98) 100%)",
+        cardBgSoft: "#23324a",
+        panelBg: "linear-gradient(180deg, #1d2a3f 0%, #22324a 100%)",
+        border: "#3b4f6a",
+        borderSoft: "#4a5d78",
+        text: "#e5eefc",
+        title: "#9bc4ff",
+        muted: "#a9bdd8",
+        inputBg: "#162033",
+        inputBorder: "#41546f",
+        inputText: "#f8fbff",
+        buttonBg: "#22324a",
+        buttonBorder: "#4b6584",
+        buttonText: "#dbeafe",
+        buttonPrimaryBg: "linear-gradient(180deg, #4f8fd8 0%, #3b73b9 100%)",
+        buttonPrimaryBorder: "#72a7e5",
+        buttonPrimaryText: "#ffffff",
+        noteBg: "#162033",
+        noteBorder: "#3b4f6a",
+        noteText: "#d7e4f7",
+        dangerBg: "linear-gradient(180deg, #3a2328 0%, #47292f 100%)",
+        dangerBorder: "#8b5a63",
+        dangerText: "#ffd7df",
+        footerBorder: "#3b4f6a",
+        starTint: "rgba(147, 197, 253, 0.16)",
+        starActiveBg: "linear-gradient(180deg, #ffe58f 0%, #facc15 100%)",
+        starActiveBorder: "#fbbf24",
+        starActiveText: "#1f2937",
+        urgentActiveBg: "linear-gradient(180deg, #ffb072 0%, #fb923c 100%)",
+        urgentActiveBorder: "#f97316",
+        urgentActiveText: "#1f2937",
+      }
     : {
-      pageBg: "linear-gradient(180deg, #eef6ff 0%, #f8fbff 35%, #f4f8fc 100%)",
-      cardBg: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
-      cardBgSoft: "#ffffff",
-      panelBg: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
-      border: "#dbeafe",
-      borderSoft: "#bfdbfe",
-      text: "#1f2937",
-      title: "#1e3a8a",
-      muted: "#64748b",
-      inputBg: "#ffffff",
-      inputBorder: "#cbd5e1",
-      inputText: "#0f172a",
-      buttonBg: "#f8fbff",
-      buttonBorder: "#bfdbfe",
-      buttonText: "#1e3a8a",
-      buttonPrimaryBg: "linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%)",
-      buttonPrimaryBorder: "#60a5fa",
-      buttonPrimaryText: "#ffffff",
-      noteBg: "#f8fbff",
-      noteBorder: "#e0f2fe",
-      noteText: "#475569",
-      dangerBg: "linear-gradient(180deg, #fff4f5 0%, #ffe8eb 100%)",
-      dangerBorder: "#f7b6c2",
-      dangerText: "#8a1c35",
-      footerBorder: "#dbeafe",
-      starTint: "rgba(96, 165, 250, 0.18)",
-      starActiveBg: "linear-gradient(180deg, #fde68a 0%, #facc15 100%)",
-      starActiveBorder: "#f59e0b",
-      starActiveText: "#1f2937",
-      urgentActiveBg: "linear-gradient(180deg, #fdba74 0%, #fb923c 100%)",
-      urgentActiveBorder: "#ea580c",
-      urgentActiveText: "#1f2937",
-    };
+        pageBg: "linear-gradient(180deg, #eef6ff 0%, #f8fbff 35%, #f4f8fc 100%)",
+        cardBg: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,251,255,0.98) 100%)",
+        cardBgSoft: "#ffffff",
+        panelBg: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
+        border: "#dbeafe",
+        borderSoft: "#bfdbfe",
+        text: "#1f2937",
+        title: "#1e3a8a",
+        muted: "#64748b",
+        inputBg: "#ffffff",
+        inputBorder: "#cbd5e1",
+        inputText: "#0f172a",
+        buttonBg: "#f8fbff",
+        buttonBorder: "#bfdbfe",
+        buttonText: "#1e3a8a",
+        buttonPrimaryBg: "linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%)",
+        buttonPrimaryBorder: "#60a5fa",
+        buttonPrimaryText: "#ffffff",
+        noteBg: "#f8fbff",
+        noteBorder: "#e0f2fe",
+        noteText: "#475569",
+        dangerBg: "linear-gradient(180deg, #fff4f5 0%, #ffe8eb 100%)",
+        dangerBorder: "#f7b6c2",
+        dangerText: "#8a1c35",
+        footerBorder: "#dbeafe",
+        starTint: "rgba(96, 165, 250, 0.18)",
+        starActiveBg: "linear-gradient(180deg, #fde68a 0%, #facc15 100%)",
+        starActiveBorder: "#f59e0b",
+        starActiveText: "#1f2937",
+        urgentActiveBg: "linear-gradient(180deg, #fdba74 0%, #fb923c 100%)",
+        urgentActiveBorder: "#ea580c",
+        urgentActiveText: "#1f2937",
+      };
 
   const styles = {
     page: {
@@ -1210,25 +1233,34 @@ export default function App() {
       gap: isMobile ? "10px" : "12px",
       marginBottom: isMobile ? "16px" : "18px",
     },
-    headerMain: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "flex-end",
-      gap: isMobile ? "12px" : "18px",
-      flexWrap: "nowrap",
-      minWidth: 0,
-    },
+    headerMain: isMobile
+      ? {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          gap: "12px",
+          flexWrap: "nowrap",
+          minWidth: 0,
+        }
+      : {
+          display: "grid",
+          gridTemplateColumns: "auto 1fr auto",
+          alignItems: "center",
+          gap: "24px",
+          minWidth: 0,
+        },
     mascotWrap: {
       display: "flex",
-      alignItems: "flex-end",
-      flex: 1,
+      alignItems: isMobile ? "flex-end" : "center",
+      justifyContent: isMobile ? "flex-start" : "flex-start",
+      flex: isMobile ? 1 : "0 0 auto",
       minWidth: 0,
     },
     headerRight: {
       display: "flex",
       flexDirection: "column",
-      alignItems: "stretch",
-      justifyContent: "flex-end",
+      alignItems: isMobile ? "stretch" : "flex-end",
+      justifyContent: "center",
       gap: isMobile ? "10px" : "12px",
       minWidth: isMobile ? "150px" : "170px",
       flexShrink: 0,
@@ -1249,22 +1281,24 @@ export default function App() {
       boxSizing: "border-box",
     },
     titleSticker: {
-      width: isMobile ? "132px" : "152px",
-      height: isMobile ? "132px" : "152px",
+      width: isMobile ? "132px" : "150px",
+      height: isMobile ? "132px" : "150px",
       objectFit: "contain",
       cursor: "pointer",
       userSelect: "none",
       display: "block",
       filter: darkMode
-        ? "drop-shadow(0 8px 18px rgba(59, 130, 246, 0.22))"
-        : "drop-shadow(0 8px 18px rgba(96, 165, 250, 0.18))",
+        ? "drop-shadow(0 8px 18px rgba(59, 130, 246, 0.22)) drop-shadow(0 0 16px rgba(147, 197, 253, 0.22))"
+        : "drop-shadow(0 8px 18px rgba(96, 165, 250, 0.18)) drop-shadow(0 0 14px rgba(120, 160, 255, 0.22))",
+      transformOrigin: "center bottom",
     },
     titleBlock: {
       display: "grid",
       justifyItems: "center",
+      alignContent: "center",
       gap: isMobile ? "4px" : "6px",
       marginTop: isMobile ? "2px" : "0px",
-      marginBottom: isMobile ? "2px" : "4px",
+      marginBottom: isMobile ? "2px" : "0px",
       textAlign: "center",
       minWidth: 0,
     },
@@ -1279,6 +1313,10 @@ export default function App() {
       textAlign: "center",
       whiteSpace: "nowrap",
       minWidth: 0,
+      textShadow: darkMode
+        ? "0 0 12px rgba(147, 197, 253, 0.24), 0 0 2px rgba(255,255,255,0.12)"
+        : "0 0 12px rgba(96, 165, 250, 0.14), 0 0 2px rgba(255,255,255,0.16)",
+      animation: headerCelebrate ? "tpTitleGlow 0.8s ease" : "none",
     },
     starSummaryWrap: {
       position: "relative",
@@ -1298,13 +1336,18 @@ export default function App() {
       cursor: "pointer",
       userSelect: "none",
       color: theme.title,
-      animation: pulseStar ? "pulseLite 0.6s ease" : "none",
+      animation: pulseStar
+        ? "pulseLite 0.6s ease"
+        : headerCelebrate
+          ? "tpStarPop 0.65s ease"
+          : "none",
       minWidth: 0,
     },
     starSummaryIcon: {
       fontSize: isMobile ? "20px" : "22px",
       lineHeight: 1,
       flexShrink: 0,
+      filter: "drop-shadow(0 0 8px rgba(255, 215, 100, 0.35))",
     },
     starSummaryTextWrap: {
       display: "grid",
@@ -1316,8 +1359,9 @@ export default function App() {
       fontWeight: 700,
       fontSize: isMobile ? "18px" : "20px",
       lineHeight: 1.05,
-      color: theme.title,
+      color: "#ffd966",
       whiteSpace: "nowrap",
+      textShadow: "0 0 10px rgba(255, 215, 100, 0.35)",
     },
     starSummaryLabel: {
       fontFamily: STAR_FONT,
@@ -1331,8 +1375,8 @@ export default function App() {
       background: theme.cardBg,
       borderRadius: "18px",
       boxShadow: darkMode
-        ? "0 10px 24px rgba(2, 6, 23, 0.28)"
-        : "0 6px 20px rgba(148, 163, 184, 0.12)",
+        ? "0 10px 24px rgba(2, 6, 23, 0.32)"
+        : "0 8px 22px rgba(148, 163, 184, 0.14)",
       border: `1px solid ${theme.border}`,
       padding: isMobile ? "14px" : "16px",
       marginBottom: "12px",
@@ -1340,6 +1384,7 @@ export default function App() {
       overflow: "hidden",
       minWidth: 0,
       boxSizing: "border-box",
+      backdropFilter: "blur(8px)",
     },
     cardStars: {
       position: "absolute",
@@ -1411,7 +1456,7 @@ export default function App() {
       fontWeight: 700,
       boxSizing: "border-box",
       minHeight: "44px",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     buttonPrimary: {
@@ -1429,7 +1474,7 @@ export default function App() {
         : "0 6px 16px rgba(59, 130, 246, 0.22)",
       boxSizing: "border-box",
       minHeight: "44px",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     smallButton: {
@@ -1444,7 +1489,7 @@ export default function App() {
       fontFamily: BODY_FONT,
       fontWeight: 700,
       boxSizing: "border-box",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     taskName: {
@@ -1566,7 +1611,9 @@ export default function App() {
     },
     infoPanel: {
       position: "absolute",
-      right: 0,
+      left: isMobile ? "50%" : "auto",
+      right: isMobile ? "auto" : 0,
+      transform: isMobile ? "translateX(-50%)" : "none",
       top: "48px",
       width: isMobile ? "min(400px, calc(100vw - 24px))" : "min(380px, calc(100vw - 32px))",
       background: theme.panelBg,
@@ -1628,7 +1675,7 @@ export default function App() {
       justifyContent: "center",
       width: "100%",
       maxWidth: "100%",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     detailsToggle: {
@@ -1643,7 +1690,7 @@ export default function App() {
       fontFamily: BODY_FONT,
       fontWeight: 700,
       boxSizing: "border-box",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     footerBar: {
@@ -1707,7 +1754,7 @@ export default function App() {
       alignItems: "center",
       justifyContent: "center",
       width: "100%",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     dangerSection: {
@@ -1740,7 +1787,7 @@ export default function App() {
       width: "100%",
       boxSizing: "border-box",
       minHeight: "44px",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     archiveCompactCard: {
@@ -1791,7 +1838,7 @@ export default function App() {
       fontWeight: 600,
       lineHeight: 1.2,
       boxSizing: "border-box",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     archiveUndoButton: {
@@ -1807,7 +1854,7 @@ export default function App() {
       fontWeight: 700,
       flexShrink: 0,
       boxSizing: "border-box",
-      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease",
       touchAction: "manipulation",
     },
     archiveFilterGrid: {
@@ -1869,12 +1916,6 @@ export default function App() {
     },
   };
 
-  function interactivePressStyle(baseStyle) {
-    return {
-      ...baseStyle,
-    };
-  }
-
   function starToggleStyle(isActive) {
     return {
       ...styles.smallButton,
@@ -1905,6 +1946,89 @@ export default function App() {
     };
   }
 
+  const desktopTitleBlock = (
+    <div style={styles.titleBlock}>
+      <h1 style={styles.titleText}>Tasky Puppy</h1>
+
+      <div style={styles.starSummaryWrap} ref={starPanelRef}>
+        <div
+          style={styles.starSummaryButton}
+          onClick={toggleStarPanel}
+          title="Click to edit stars"
+        >
+          <span style={styles.starSummaryIcon}>⭐</span>
+
+          <div style={styles.starSummaryTextWrap}>
+            <span style={styles.starSummaryCount}>{displayStarCount}</span>
+            <span style={styles.starSummaryLabel}>stars earned</span>
+          </div>
+        </div>
+
+        {showStarTools && (
+          <div style={styles.starPanel}>
+            <div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>
+              Star Tools
+            </div>
+
+            <div style={styles.helperText}>
+              Displayed stars use the manual override when one is set. Otherwise they use the
+              archive-counted total.
+            </div>
+
+            <div style={{ ...styles.helperText, marginTop: "8px" }}>
+              Manual override: <strong>{starCountManual === null ? "Off" : starCountManual}</strong>
+            </div>
+
+            <div style={styles.helperText}>
+              Calculated from archive: <strong>{starCountCalculated}</strong>
+            </div>
+
+            <div style={styles.helperText}>
+              Displayed total: <strong>{displayStarCount}</strong>
+            </div>
+
+            <div style={{ display: "grid", gap: "8px", marginTop: "10px", minWidth: 0 }}>
+              <input
+                style={styles.input}
+                type="number"
+                min="0"
+                value={editingStarValue}
+                onChange={(e) => setEditingStarValue(e.target.value)}
+                placeholder="Edit displayed stars"
+              />
+
+              <div style={styles.starActionRow}>
+                <button
+                  className="pressable"
+                  style={styles.starActionButton}
+                  onClick={applyManualStarCount}
+                >
+                  Save Stars
+                </button>
+
+                <button
+                  className="pressable"
+                  style={styles.starActionButton}
+                  onClick={useCalculatedStarCount}
+                >
+                  Use Counted
+                </button>
+
+                <button
+                  className="pressable"
+                  style={styles.starActionButton}
+                  onClick={resetStarCount}
+                >
+                  Reset to 0
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div style={styles.page}>
       {expandedGallerySticker && (
@@ -1932,43 +2056,52 @@ export default function App() {
         </div>
       )}
 
-      {activeStickers.map((sticker) => (
-        <img
-          key={sticker.id}
-          alt="sticker"
-          src={sticker.src}
-          style={{
-            position: "fixed",
-            left: sticker.x,
-            top: sticker.y,
-            width: 120,
-            transform: `translate(-50%,0) rotate(${sticker.rotation}deg)`,
-            pointerEvents: "none",
-            animation: "stickerLaunch 1.8s ease-out forwards",
-            zIndex: 9999,
-          }}
-        />
-      ))}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 9999,
+        }}
+      >
+        {activeStickers.map((sticker) => (
+          <img
+            key={sticker.id}
+            alt="sticker"
+            src={sticker.src}
+            style={{
+              position: "fixed",
+              left: sticker.x,
+              top: sticker.y,
+              width: 120,
+              transform: `translate(-50%,0) rotate(${sticker.rotation}deg)`,
+              pointerEvents: "none",
+              animation: "stickerLaunch 1.8s ease-out forwards",
+              zIndex: 9999,
+            }}
+          />
+        ))}
 
-      {starParticles.map((star) => (
-        <div
-          key={star.id}
-          style={{
-            position: "fixed",
-            left: star.x,
-            top: star.y,
-            pointerEvents: "none",
-            transform: "translate(-50%, -50%)",
-            animation: "starFly 1.2s ease-out forwards",
-            ["--dx"]: `${star.dx}px`,
-            ["--dy"]: `${star.dy}px`,
-            fontSize: `${star.size}px`,
-            zIndex: 9999,
-          }}
-        >
-          {star.symbol}
-        </div>
-      ))}
+        {starParticles.map((star) => (
+          <div
+            key={star.id}
+            style={{
+              position: "fixed",
+              left: star.x,
+              top: star.y,
+              pointerEvents: "none",
+              transform: "translate(-50%, -50%)",
+              animation: "starFly 1.2s ease-out forwards",
+              ["--dx"]: `${star.dx}px`,
+              ["--dy"]: `${star.dy}px`,
+              fontSize: `${star.size}px`,
+              zIndex: 9999,
+            }}
+          >
+            {star.symbol}
+          </div>
+        ))}
+      </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
@@ -2017,6 +2150,45 @@ export default function App() {
           100% { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes tpMascotBounce {
+          0% { transform: translateY(0) scale(1); }
+          22% { transform: translateY(-8px) scale(1.03); }
+          45% { transform: translateY(0) scale(0.995); }
+          65% { transform: translateY(-3px) scale(1.01); }
+          100% { transform: translateY(0) scale(1); }
+        }
+
+        @keyframes tpStarPop {
+          0% { transform: scale(1); }
+          25% { transform: scale(1.12); }
+          45% { transform: scale(0.98); }
+          100% { transform: scale(1); }
+        }
+
+        @keyframes tpTitleGlow {
+          0% {
+            text-shadow: 0 0 0 rgba(255,255,255,0);
+            transform: scale(1);
+          }
+          30% {
+            text-shadow:
+              0 0 12px rgba(150,180,255,0.28),
+              0 0 24px rgba(255,215,120,0.18);
+            transform: scale(1.015);
+          }
+          100% {
+            text-shadow:
+              0 0 12px rgba(150,180,255,0.18),
+              0 0 2px rgba(255,255,255,0.12);
+            transform: scale(1);
+          }
+        }
+
+        .pressable:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+        }
+
         .pressable:active {
           transform: scale(0.96);
           box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
@@ -2039,6 +2211,11 @@ export default function App() {
             font-size: 16px;
             line-height: 1.2;
           }
+
+          .pressable:hover {
+            transform: none;
+            box-shadow: none;
+          }
         }
       `}</style>
 
@@ -2060,7 +2237,9 @@ export default function App() {
                   alt="Tasky Puppy mascot"
                   style={{
                     ...styles.titleSticker,
-                    animation: "mascotIdle 5s ease-in-out infinite",
+                    animation: headerCelebrate
+                      ? "tpMascotBounce 0.75s ease"
+                      : "mascotIdle 5s ease-in-out infinite",
                   }}
                   onClick={handleTitleStickerClick}
                   title="Click for a little reward boost. Works when Stickers are turned on."
@@ -2073,7 +2252,9 @@ export default function App() {
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: "72px",
-                    animation: "mascotIdle 5s ease-in-out infinite",
+                    animation: headerCelebrate
+                      ? "tpMascotBounce 0.75s ease"
+                      : "mascotIdle 5s ease-in-out infinite",
                   }}
                   onClick={handleTitleStickerClick}
                   title="Click for a little reward boost. Works when Stickers are turned on."
@@ -2082,6 +2263,8 @@ export default function App() {
                 </div>
               )}
             </div>
+
+            {!isMobile && desktopTitleBlock}
 
             <div style={styles.headerRight}>
               <div style={styles.headerButtons}>
@@ -2239,87 +2422,7 @@ export default function App() {
             </div>
           </div>
 
-          <div style={styles.titleBlock}>
-            <h1 style={styles.titleText}>Tasky Puppy</h1>
-
-            <div style={styles.starSummaryWrap} ref={starPanelRef}>
-              <div
-                style={styles.starSummaryButton}
-                onClick={toggleStarPanel}
-                title="Click to edit stars"
-              >
-                <span style={styles.starSummaryIcon}>⭐</span>
-
-                <div style={styles.starSummaryTextWrap}>
-                  <span style={styles.starSummaryCount}>{displayStarCount}</span>
-                  <span style={styles.starSummaryLabel}>stars earned</span>
-                </div>
-              </div>
-
-              {showStarTools && (
-                <div style={styles.starPanel}>
-                  <div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>
-                    Star Tools
-                  </div>
-
-                  <div style={styles.helperText}>
-                    Displayed stars use the manual override when one is set. Otherwise they use
-                    the archive-counted total.
-                  </div>
-
-                  <div style={{ ...styles.helperText, marginTop: "8px" }}>
-                    Manual override:{" "}
-                    <strong>{starCountManual === null ? "Off" : starCountManual}</strong>
-                  </div>
-
-                  <div style={styles.helperText}>
-                    Calculated from archive: <strong>{starCountCalculated}</strong>
-                  </div>
-
-                  <div style={styles.helperText}>
-                    Displayed total: <strong>{displayStarCount}</strong>
-                  </div>
-
-                  <div style={{ display: "grid", gap: "8px", marginTop: "10px", minWidth: 0 }}>
-                    <input
-                      style={styles.input}
-                      type="number"
-                      min="0"
-                      value={editingStarValue}
-                      onChange={(e) => setEditingStarValue(e.target.value)}
-                      placeholder="Edit displayed stars"
-                    />
-
-                    <div style={styles.starActionRow}>
-                      <button
-                        className="pressable"
-                        style={styles.starActionButton}
-                        onClick={applyManualStarCount}
-                      >
-                        Save Stars
-                      </button>
-
-                      <button
-                        className="pressable"
-                        style={styles.starActionButton}
-                        onClick={useCalculatedStarCount}
-                      >
-                        Use Counted
-                      </button>
-
-                      <button
-                        className="pressable"
-                        style={styles.starActionButton}
-                        onClick={resetStarCount}
-                      >
-                        Reset to 0
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          {isMobile && desktopTitleBlock}
         </div>
 
         <div style={styles.controlsRow}>
@@ -2381,7 +2484,13 @@ export default function App() {
                   regular copies! Or else!
                 </div>
 
-                <div style={{ marginTop: "10px", display: "flex", justifyContent: isMobile ? "center" : "flex-start" }}>
+                <div
+                  style={{
+                    marginTop: "10px",
+                    display: "flex",
+                    justifyContent: isMobile ? "center" : "flex-start",
+                  }}
+                >
                   <button
                     className="pressable"
                     style={styles.detailsToggle}
