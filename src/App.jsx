@@ -22,6 +22,7 @@ const defaultStickerPack = Object.entries(stickerModules)
 
 const TITLE_FONT = '"Fredoka", "Baloo 2", "Nunito", sans-serif';
 const BODY_FONT = '"Nunito", "Quicksand", Arial, sans-serif';
+const STAR_FONT = '"Baloo 2", "Quicksand", "Nunito", sans-serif';
 
 const STORAGE_KEY = "tasky_puppy_data_v1";
 const BACKUP_KEY = "tasky_puppy_backup_v1";
@@ -1206,48 +1207,32 @@ export default function App() {
     },
     topBar: {
       display: "grid",
-      gap: isMobile ? "8px" : "10px",
-      marginBottom: "20px",
+      gap: isMobile ? "10px" : "12px",
+      marginBottom: isMobile ? "16px" : "18px",
     },
     headerMain: {
       display: "flex",
       justifyContent: "space-between",
-      alignItems: isMobile ? "center" : "flex-start",
-      gap: isMobile ? "12px" : "16px",
-      flexWrap: "nowrap",
-    },
-    titleWrap: {
-      display: "flex",
-      alignItems: "center",
+      alignItems: "flex-end",
       gap: isMobile ? "12px" : "18px",
+      flexWrap: "nowrap",
       minWidth: 0,
-      transform: isMobile ? "translateY(-1px)" : "none",
     },
-    titleMobileRow: {
-      marginTop: "2px",
+    mascotWrap: {
       display: "flex",
-      justifyContent: "center",
-    },
-    titleTextMobile: {
-      margin: 0,
-      fontSize: "34px",
-      color: theme.title,
-      fontFamily: TITLE_FONT,
-      fontWeight: 800,
-      letterSpacing: "0.3px",
-      lineHeight: 1.05,
-      textAlign: "center",
-      whiteSpace: "nowrap",
-      transform: "translateY(-2px)",
+      alignItems: "flex-end",
+      flex: 1,
+      minWidth: 0,
     },
     headerRight: {
       display: "flex",
       flexDirection: "column",
-      alignItems: "center",
+      alignItems: "stretch",
+      justifyContent: "flex-end",
       gap: isMobile ? "10px" : "12px",
-      minWidth: isMobile ? "150px" : "160px",
+      minWidth: isMobile ? "150px" : "170px",
       flexShrink: 0,
-      transform: isMobile ? "translateY(1px)" : "none",
+      position: "relative",
     },
     headerButtons: {
       display: "flex",
@@ -1264,14 +1249,83 @@ export default function App() {
       boxSizing: "border-box",
     },
     titleSticker: {
-      width: isMobile ? "132px" : "140px",
-      height: isMobile ? "132px" : "140px",
+      width: isMobile ? "132px" : "152px",
+      height: isMobile ? "132px" : "152px",
       objectFit: "contain",
       cursor: "pointer",
       userSelect: "none",
+      display: "block",
       filter: darkMode
         ? "drop-shadow(0 8px 18px rgba(59, 130, 246, 0.22))"
         : "drop-shadow(0 8px 18px rgba(96, 165, 250, 0.18))",
+    },
+    titleBlock: {
+      display: "grid",
+      justifyItems: "center",
+      gap: isMobile ? "4px" : "6px",
+      marginTop: isMobile ? "2px" : "0px",
+      marginBottom: isMobile ? "2px" : "4px",
+      textAlign: "center",
+      minWidth: 0,
+    },
+    titleText: {
+      margin: 0,
+      fontSize: isMobile ? "34px" : "40px",
+      color: theme.title,
+      fontFamily: TITLE_FONT,
+      fontWeight: 800,
+      letterSpacing: "0.3px",
+      lineHeight: 1.02,
+      textAlign: "center",
+      whiteSpace: "nowrap",
+      minWidth: 0,
+    },
+    starSummaryWrap: {
+      position: "relative",
+      display: "flex",
+      justifyContent: "center",
+      width: "100%",
+      minWidth: 0,
+    },
+    starSummaryButton: {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: isMobile ? "8px" : "10px",
+      minHeight: "44px",
+      padding: isMobile ? "2px 8px" : "4px 10px",
+      borderRadius: "999px",
+      cursor: "pointer",
+      userSelect: "none",
+      color: theme.title,
+      animation: pulseStar ? "pulseLite 0.6s ease" : "none",
+      minWidth: 0,
+    },
+    starSummaryIcon: {
+      fontSize: isMobile ? "20px" : "22px",
+      lineHeight: 1,
+      flexShrink: 0,
+    },
+    starSummaryTextWrap: {
+      display: "grid",
+      gap: "0px",
+      minWidth: 0,
+    },
+    starSummaryCount: {
+      fontFamily: STAR_FONT,
+      fontWeight: 700,
+      fontSize: isMobile ? "18px" : "20px",
+      lineHeight: 1.05,
+      color: theme.title,
+      whiteSpace: "nowrap",
+    },
+    starSummaryLabel: {
+      fontFamily: STAR_FONT,
+      fontWeight: 600,
+      fontSize: isMobile ? "13px" : "14px",
+      lineHeight: 1.05,
+      color: theme.muted,
+      whiteSpace: "nowrap",
     },
     card: {
       background: theme.cardBg,
@@ -1310,6 +1364,24 @@ export default function App() {
       color: theme.inputText,
       minWidth: 0,
       display: "block",
+    },
+    archiveDateInput: {
+      width: "100%",
+      maxWidth: "100%",
+      padding: "10px 12px",
+      minHeight: "44px",
+      borderRadius: "12px",
+      border: `1px solid ${theme.inputBorder}`,
+      fontSize: isMobile ? "16px" : "14px",
+      lineHeight: 1.2,
+      boxSizing: "border-box",
+      fontFamily: BODY_FONT,
+      background: theme.inputBg,
+      color: theme.inputText,
+      minWidth: 0,
+      display: "block",
+      WebkitAppearance: "none",
+      appearance: "none",
     },
     textarea: {
       width: "100%",
@@ -1511,8 +1583,9 @@ export default function App() {
     },
     starPanel: {
       position: "absolute",
-      right: 0,
-      top: "34px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      top: "calc(100% + 8px)",
       width: isMobile ? "min(320px, calc(100vw - 24px))" : "min(300px, calc(100vw - 32px))",
       background: theme.panelBg,
       borderRadius: "16px",
@@ -1743,17 +1816,22 @@ export default function App() {
       gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(180px, 1fr))",
       width: "100%",
       minWidth: 0,
+      alignItems: "start",
     },
     archiveFilterCell: {
       minWidth: 0,
       width: "100%",
       boxSizing: "border-box",
+      display: "grid",
+      gap: "4px",
+      alignContent: "start",
     },
     archiveFilterAction: {
       display: "flex",
-      alignItems: "end",
+      alignItems: "flex-end",
       minWidth: 0,
       width: "100%",
+      boxSizing: "border-box",
     },
     fullWidthButton: {
       width: "100%",
@@ -1761,15 +1839,13 @@ export default function App() {
       boxSizing: "border-box",
     },
     controlsRow: {
-      ...{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "8px",
-        marginBottom: "14px",
-        position: "relative",
-        alignItems: "center",
-        justifyContent: isMobile ? "center" : "flex-start",
-      },
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "8px",
+      marginBottom: "14px",
+      position: "relative",
+      alignItems: "center",
+      justifyContent: "center",
     },
     taskHeaderRow: {
       display: "grid",
@@ -1946,13 +2022,22 @@ export default function App() {
           box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        * {
+          box-sizing: border-box;
+        }
+
         @media (max-width: 640px) {
           input[type="date"] {
             min-width: 0;
             width: 100%;
             max-width: 100%;
+            min-height: 44px;
             box-sizing: border-box;
             display: block;
+            -webkit-appearance: none;
+            appearance: none;
+            font-size: 16px;
+            line-height: 1.2;
           }
         }
       `}</style>
@@ -1968,7 +2053,7 @@ export default function App() {
 
         <div style={styles.topBar}>
           <div style={styles.headerMain}>
-            <div style={styles.titleWrap}>
+            <div style={styles.mascotWrap}>
               {titleSticker ? (
                 <img
                   src={titleSticker}
@@ -1996,108 +2081,9 @@ export default function App() {
                   🐶
                 </div>
               )}
-
-              {!isMobile && (
-                <h1
-                  style={{
-                    margin: 0,
-                    fontSize: "34px",
-                    color: theme.title,
-                    fontFamily: TITLE_FONT,
-                    fontWeight: 800,
-                    letterSpacing: "0.3px",
-                    whiteSpace: "nowrap",
-                    transform: "translateY(-2px)",
-                  }}
-                >
-                  Tasky Puppy ⭐
-                </h1>
-              )}
             </div>
 
-            <div style={{ ...styles.headerRight, position: "relative" }}>
-              <div style={{ position: "relative" }} ref={starPanelRef}>
-                <div
-                  style={{
-                    ...styles.row,
-                    justifyContent: "center",
-                    fontWeight: 700,
-                    animation: pulseStar ? "pulseLite 0.6s ease" : "none",
-                    color: theme.title,
-                    cursor: "pointer",
-                    minHeight: "44px",
-                  }}
-                  onClick={toggleStarPanel}
-                  title="Click to edit stars"
-                >
-                  <span>⭐</span>
-                  <span>{displayStarCount}</span>
-                </div>
-
-                {showStarTools && (
-                  <div style={styles.starPanel}>
-                    <div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>
-                      Star Tools
-                    </div>
-
-                    <div style={styles.helperText}>
-                      Displayed stars use the manual override when one is set. Otherwise they use
-                      the archive-counted total.
-                    </div>
-
-                    <div style={{ ...styles.helperText, marginTop: "8px" }}>
-                      Manual override:{" "}
-                      <strong>{starCountManual === null ? "Off" : starCountManual}</strong>
-                    </div>
-
-                    <div style={styles.helperText}>
-                      Calculated from archive: <strong>{starCountCalculated}</strong>
-                    </div>
-
-                    <div style={styles.helperText}>
-                      Displayed total: <strong>{displayStarCount}</strong>
-                    </div>
-
-                    <div style={{ display: "grid", gap: "8px", marginTop: "10px", minWidth: 0 }}>
-                      <input
-                        style={styles.input}
-                        type="number"
-                        min="0"
-                        value={editingStarValue}
-                        onChange={(e) => setEditingStarValue(e.target.value)}
-                        placeholder="Edit displayed stars"
-                      />
-
-                      <div style={styles.starActionRow}>
-                        <button
-                          className="pressable"
-                          style={styles.starActionButton}
-                          onClick={applyManualStarCount}
-                        >
-                          Save Stars
-                        </button>
-
-                        <button
-                          className="pressable"
-                          style={styles.starActionButton}
-                          onClick={useCalculatedStarCount}
-                        >
-                          Use Counted
-                        </button>
-
-                        <button
-                          className="pressable"
-                          style={styles.starActionButton}
-                          onClick={resetStarCount}
-                        >
-                          Reset to 0
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
+            <div style={styles.headerRight}>
               <div style={styles.headerButtons}>
                 <div style={{ position: "relative" }} ref={stickerPanelRef}>
                   <button
@@ -2254,11 +2240,87 @@ export default function App() {
             </div>
           </div>
 
-          {isMobile && (
-            <div style={styles.titleMobileRow}>
-              <h1 style={styles.titleTextMobile}>Tasky Puppy ⭐</h1>
+          <div style={styles.titleBlock}>
+            <h1 style={styles.titleText}>Tasky Puppy</h1>
+
+            <div style={styles.starSummaryWrap} ref={starPanelRef}>
+              <div
+                style={styles.starSummaryButton}
+                onClick={toggleStarPanel}
+                title="Click to edit stars"
+              >
+                <span style={styles.starSummaryIcon}>⭐</span>
+
+                <div style={styles.starSummaryTextWrap}>
+                  <span style={styles.starSummaryCount}>{displayStarCount}</span>
+                  <span style={styles.starSummaryLabel}>stars earned</span>
+                </div>
+              </div>
+
+              {showStarTools && (
+                <div style={styles.starPanel}>
+                  <div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>
+                    Star Tools
+                  </div>
+
+                  <div style={styles.helperText}>
+                    Displayed stars use the manual override when one is set. Otherwise they use
+                    the archive-counted total.
+                  </div>
+
+                  <div style={{ ...styles.helperText, marginTop: "8px" }}>
+                    Manual override:{" "}
+                    <strong>{starCountManual === null ? "Off" : starCountManual}</strong>
+                  </div>
+
+                  <div style={styles.helperText}>
+                    Calculated from archive: <strong>{starCountCalculated}</strong>
+                  </div>
+
+                  <div style={styles.helperText}>
+                    Displayed total: <strong>{displayStarCount}</strong>
+                  </div>
+
+                  <div style={{ display: "grid", gap: "8px", marginTop: "10px", minWidth: 0 }}>
+                    <input
+                      style={styles.input}
+                      type="number"
+                      min="0"
+                      value={editingStarValue}
+                      onChange={(e) => setEditingStarValue(e.target.value)}
+                      placeholder="Edit displayed stars"
+                    />
+
+                    <div style={styles.starActionRow}>
+                      <button
+                        className="pressable"
+                        style={styles.starActionButton}
+                        onClick={applyManualStarCount}
+                      >
+                        Save Stars
+                      </button>
+
+                      <button
+                        className="pressable"
+                        style={styles.starActionButton}
+                        onClick={useCalculatedStarCount}
+                      >
+                        Use Counted
+                      </button>
+
+                      <button
+                        className="pressable"
+                        style={styles.starActionButton}
+                        onClick={resetStarCount}
+                      >
+                        Reset to 0
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         <div style={styles.controlsRow}>
@@ -2608,7 +2670,7 @@ export default function App() {
                     <div style={{ ...styles.muted, marginBottom: "4px" }}>Start Date</div>
                     <input
                       type="date"
-                      style={styles.input}
+                      style={styles.archiveDateInput}
                       value={archiveStartDate}
                       onChange={(e) => setArchiveStartDate(e.target.value)}
                     />
@@ -2618,7 +2680,7 @@ export default function App() {
                     <div style={{ ...styles.muted, marginBottom: "4px" }}>End Date</div>
                     <input
                       type="date"
-                      style={styles.input}
+                      style={styles.archiveDateInput}
                       value={archiveEndDate}
                       onChange={(e) => setArchiveEndDate(e.target.value)}
                     />
