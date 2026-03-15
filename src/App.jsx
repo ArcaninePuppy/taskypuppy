@@ -239,7 +239,7 @@ export default function App() {
 
         const savedManual =
           parsed?.stars?.userModifiedTotal === null ||
-          typeof parsed?.stars?.userModifiedTotal === "number"
+            typeof parsed?.stars?.userModifiedTotal === "number"
             ? parsed.stars.userModifiedTotal
             : null;
 
@@ -315,7 +315,7 @@ export default function App() {
 
           setStarCountManual(
             parsed?.stars?.userModifiedTotal === null ||
-            typeof parsed?.stars?.userModifiedTotal === "number"
+              typeof parsed?.stars?.userModifiedTotal === "number"
               ? parsed.stars.userModifiedTotal
               : null
           );
@@ -584,7 +584,7 @@ export default function App() {
       );
       setStarCountManual(
         parsed?.stars?.userModifiedTotal === null ||
-        typeof parsed?.stars?.userModifiedTotal === "number"
+          typeof parsed?.stars?.userModifiedTotal === "number"
           ? parsed.stars.userModifiedTotal
           : null
       );
@@ -698,11 +698,11 @@ export default function App() {
       tasks.map((t) =>
         t.id === id
           ? {
-              ...t,
-              name: editingTaskName.trim() || t.name,
-              notes: editingNotes,
-              notesUpdatedAt: now,
-            }
+            ...t,
+            name: editingTaskName.trim() || t.name,
+            notes: editingNotes,
+            notesUpdatedAt: now,
+          }
           : t
       )
     );
@@ -1078,30 +1078,30 @@ export default function App() {
 
   const archiveEntries = hasArchiveFilters
     ? archiveGroups
-        .map((entry) => {
-          const filtered = entry.list.filter((task) => {
-            const q = archiveSearch.toLowerCase();
-            const taskISO = parseArchiveISO(task, entry.date) || entry.groupISO;
+      .map((entry) => {
+        const filtered = entry.list.filter((task) => {
+          const q = archiveSearch.toLowerCase();
+          const taskISO = parseArchiveISO(task, entry.date) || entry.groupISO;
 
-            const matchesSearch =
-              task.name.toLowerCase().includes(q) ||
-              (task.notes || "").toLowerCase().includes(q);
+          const matchesSearch =
+            task.name.toLowerCase().includes(q) ||
+            (task.notes || "").toLowerCase().includes(q);
 
-            const matchesStart =
-              !archiveStartDate || (taskISO && taskISO >= archiveStartDate);
+          const matchesStart =
+            !archiveStartDate || (taskISO && taskISO >= archiveStartDate);
 
-            const matchesEnd =
-              !archiveEndDate || (taskISO && taskISO <= archiveEndDate);
+          const matchesEnd =
+            !archiveEndDate || (taskISO && taskISO <= archiveEndDate);
 
-            return matchesSearch && matchesStart && matchesEnd;
-          });
+          return matchesSearch && matchesStart && matchesEnd;
+        });
 
-          return {
-            ...entry,
-            list: filtered,
-          };
-        })
-        .filter((entry) => entry.list.length > 0)
+        return {
+          ...entry,
+          list: filtered,
+        };
+      })
+      .filter((entry) => entry.list.length > 0)
     : archiveGroups.slice(0, 7);
 
   const galleryStickers = stickers.map((src, index) => ({
@@ -1113,73 +1113,73 @@ export default function App() {
 
   const theme = darkMode
     ? {
-        pageBg: "linear-gradient(180deg, #0f172a 0%, #162033 35%, #1b263b 100%)",
-        cardBg: "linear-gradient(180deg, #1d2a3f 0%, #22324a 100%)",
-        cardBgSoft: "#23324a",
-        panelBg: "linear-gradient(180deg, #1d2a3f 0%, #22324a 100%)",
-        border: "#3b4f6a",
-        borderSoft: "#4a5d78",
-        text: "#e5eefc",
-        title: "#9bc4ff",
-        muted: "#a9bdd8",
-        inputBg: "#162033",
-        inputBorder: "#41546f",
-        inputText: "#f8fbff",
-        buttonBg: "#22324a",
-        buttonBorder: "#4b6584",
-        buttonText: "#dbeafe",
-        buttonPrimaryBg: "linear-gradient(180deg, #4f8fd8 0%, #3b73b9 100%)",
-        buttonPrimaryBorder: "#72a7e5",
-        buttonPrimaryText: "#ffffff",
-        noteBg: "#162033",
-        noteBorder: "#3b4f6a",
-        noteText: "#d7e4f7",
-        dangerBg: "linear-gradient(180deg, #3a2328 0%, #47292f 100%)",
-        dangerBorder: "#8b5a63",
-        dangerText: "#ffd7df",
-        footerBorder: "#3b4f6a",
-        starTint: "rgba(147, 197, 253, 0.16)",
-        starActiveBg: "linear-gradient(180deg, #ffe58f 0%, #facc15 100%)",
-        starActiveBorder: "#fbbf24",
-        starActiveText: "#1f2937",
-        urgentActiveBg: "linear-gradient(180deg, #ffb072 0%, #fb923c 100%)",
-        urgentActiveBorder: "#f97316",
-        urgentActiveText: "#1f2937",
-      }
+      pageBg: "linear-gradient(180deg, #0f172a 0%, #162033 35%, #1b263b 100%)",
+      cardBg: "linear-gradient(180deg, #1d2a3f 0%, #22324a 100%)",
+      cardBgSoft: "#23324a",
+      panelBg: "linear-gradient(180deg, #1d2a3f 0%, #22324a 100%)",
+      border: "#3b4f6a",
+      borderSoft: "#4a5d78",
+      text: "#e5eefc",
+      title: "#9bc4ff",
+      muted: "#a9bdd8",
+      inputBg: "#162033",
+      inputBorder: "#41546f",
+      inputText: "#f8fbff",
+      buttonBg: "#22324a",
+      buttonBorder: "#4b6584",
+      buttonText: "#dbeafe",
+      buttonPrimaryBg: "linear-gradient(180deg, #4f8fd8 0%, #3b73b9 100%)",
+      buttonPrimaryBorder: "#72a7e5",
+      buttonPrimaryText: "#ffffff",
+      noteBg: "#162033",
+      noteBorder: "#3b4f6a",
+      noteText: "#d7e4f7",
+      dangerBg: "linear-gradient(180deg, #3a2328 0%, #47292f 100%)",
+      dangerBorder: "#8b5a63",
+      dangerText: "#ffd7df",
+      footerBorder: "#3b4f6a",
+      starTint: "rgba(147, 197, 253, 0.16)",
+      starActiveBg: "linear-gradient(180deg, #ffe58f 0%, #facc15 100%)",
+      starActiveBorder: "#fbbf24",
+      starActiveText: "#1f2937",
+      urgentActiveBg: "linear-gradient(180deg, #ffb072 0%, #fb923c 100%)",
+      urgentActiveBorder: "#f97316",
+      urgentActiveText: "#1f2937",
+    }
     : {
-        pageBg: "linear-gradient(180deg, #eef6ff 0%, #f8fbff 35%, #f4f8fc 100%)",
-        cardBg: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
-        cardBgSoft: "#ffffff",
-        panelBg: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
-        border: "#dbeafe",
-        borderSoft: "#bfdbfe",
-        text: "#1f2937",
-        title: "#1e3a8a",
-        muted: "#64748b",
-        inputBg: "#ffffff",
-        inputBorder: "#cbd5e1",
-        inputText: "#0f172a",
-        buttonBg: "#f8fbff",
-        buttonBorder: "#bfdbfe",
-        buttonText: "#1e3a8a",
-        buttonPrimaryBg: "linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%)",
-        buttonPrimaryBorder: "#60a5fa",
-        buttonPrimaryText: "#ffffff",
-        noteBg: "#f8fbff",
-        noteBorder: "#e0f2fe",
-        noteText: "#475569",
-        dangerBg: "linear-gradient(180deg, #fff4f5 0%, #ffe8eb 100%)",
-        dangerBorder: "#f7b6c2",
-        dangerText: "#8a1c35",
-        footerBorder: "#dbeafe",
-        starTint: "rgba(96, 165, 250, 0.18)",
-        starActiveBg: "linear-gradient(180deg, #fde68a 0%, #facc15 100%)",
-        starActiveBorder: "#f59e0b",
-        starActiveText: "#1f2937",
-        urgentActiveBg: "linear-gradient(180deg, #fdba74 0%, #fb923c 100%)",
-        urgentActiveBorder: "#ea580c",
-        urgentActiveText: "#1f2937",
-      };
+      pageBg: "linear-gradient(180deg, #eef6ff 0%, #f8fbff 35%, #f4f8fc 100%)",
+      cardBg: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
+      cardBgSoft: "#ffffff",
+      panelBg: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
+      border: "#dbeafe",
+      borderSoft: "#bfdbfe",
+      text: "#1f2937",
+      title: "#1e3a8a",
+      muted: "#64748b",
+      inputBg: "#ffffff",
+      inputBorder: "#cbd5e1",
+      inputText: "#0f172a",
+      buttonBg: "#f8fbff",
+      buttonBorder: "#bfdbfe",
+      buttonText: "#1e3a8a",
+      buttonPrimaryBg: "linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%)",
+      buttonPrimaryBorder: "#60a5fa",
+      buttonPrimaryText: "#ffffff",
+      noteBg: "#f8fbff",
+      noteBorder: "#e0f2fe",
+      noteText: "#475569",
+      dangerBg: "linear-gradient(180deg, #fff4f5 0%, #ffe8eb 100%)",
+      dangerBorder: "#f7b6c2",
+      dangerText: "#8a1c35",
+      footerBorder: "#dbeafe",
+      starTint: "rgba(96, 165, 250, 0.18)",
+      starActiveBg: "linear-gradient(180deg, #fde68a 0%, #facc15 100%)",
+      starActiveBorder: "#f59e0b",
+      starActiveText: "#1f2937",
+      urgentActiveBg: "linear-gradient(180deg, #fdba74 0%, #fb923c 100%)",
+      urgentActiveBorder: "#ea580c",
+      urgentActiveText: "#1f2937",
+    };
 
   const styles = {
     page: {
@@ -2090,9 +2090,8 @@ export default function App() {
                     className="pressable"
                     onClick={toggleStickerPanel}
                     style={{
-                      ...styles.button,
+                      ...(stickersEnabled ? styles.buttonPrimary : styles.button),
                       ...styles.headerButton,
-                      color: stickersEnabled ? (darkMode ? "#a9d0ff" : "#2563eb") : theme.muted,
                     }}
                   >
                     ✨ Stickers
