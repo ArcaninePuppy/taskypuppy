@@ -48,6 +48,7 @@ export default function App() {
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
   const [notes, setNotes] = useState("");
+  const [newTaskChecklist, setNewTaskChecklist] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editingTaskName, setEditingTaskName] = useState("");
   const [editingNotes, setEditingNotes] = useState("");
@@ -309,6 +310,20 @@ export default function App() {
     celebrateTimerRef.current = setTimeout(() => setHeaderCelebrate(false), 800);
   }
 
+  function addNewTaskChecklistItem() {
+    setNewTaskChecklist((prev) => [...prev, createChecklistItem("")]);
+  }
+
+  function updateNewTaskChecklistItem(itemId, value) {
+    setNewTaskChecklist((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, text: value } : item))
+    );
+  }
+
+  function deleteNewTaskChecklistItem(itemId) {
+    setNewTaskChecklist((prev) => prev.filter((item) => item.id !== itemId));
+  }
+
   function addTask() {
     if (!taskName.trim()) return;
     createDailyRecoveryBackup();
@@ -317,7 +332,7 @@ export default function App() {
       id: Date.now(),
       name: taskName.trim(),
       notes,
-      checklist: [],
+      checklist: newTaskChecklist.filter((item) => item.text.trim() !== ""),
       done: false,
       star: false,
       critical: false,
@@ -328,6 +343,7 @@ export default function App() {
     setTasks([...tasks, newTask]);
     setTaskName("");
     setNotes("");
+    setNewTaskChecklist([]);
   }
 
   function spawnStars(x, y) {
@@ -534,6 +550,7 @@ export default function App() {
       setTasks([]);
       setTaskName("");
       setNotes("");
+      setNewTaskChecklist([]);
       setEditingId(null);
       setEditingTaskName("");
       setEditingNotes("");
@@ -607,6 +624,10 @@ export default function App() {
 
   function toggleDetails(taskId) {
     setExpandedDetails((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
+  }
+
+  function toggleArchiveNotes(noteKey) {
+    setExpandedArchiveNotes((prev) => ({ ...prev, [noteKey]: !prev[noteKey] }));
   }
 
   function handleDragStart(index) {
@@ -962,7 +983,7 @@ export default function App() {
         </div>
 
         <div style={{ marginBottom: "12px" }}><input style={styles.input} placeholder="Search active tasks..." value={queueSearch} onChange={(e) => setQueueSearch(e.target.value)} /></div>
-        <div style={styles.card}><div style={styles.cardStars}>✦ ✦</div><div style={{ display: "grid", gap: "12px" }}><input style={styles.input} maxLength={100} placeholder="Task name" value={taskName} onChange={(e) => setTaskName(e.target.value)} /><textarea style={styles.textarea} placeholder="Details / notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} /><button className="pressable" style={styles.buttonPrimary} onClick={addTask}>Add Task</button></div></div>
+        <div style={styles.card}><div style={styles.cardStars}>✦ ✦</div><div style={{ display: "grid", gap: "12px" }}><input style={styles.input} maxLength={100} placeholder="Task name" value={taskName} onChange={(e) => setTaskName(e.target.value)} /><textarea style={styles.textarea} placeholder="Details / notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} /><div style={{ display: "grid", gap: "8px" }}><div style={styles.muted}>Checklist (optional)</div>{newTaskChecklist.length > 0 && (<div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.map((item) => (<div key={item.id} style={styles.checklistEditRow}><input style={{ ...styles.input, minWidth: 0 }} placeholder="Checklist item" value={item.text} onChange={(e) => updateNewTaskChecklistItem(item.id, e.target.value)} /><button className="pressable" style={styles.smallButton} onClick={() => deleteNewTaskChecklistItem(item.id)}>Delete</button></div>))}</div>)}<button className="pressable" style={styles.button} onClick={addNewTaskChecklistItem}>+ Add Checklist Item</button></div><button className="pressable" style={styles.buttonPrimary} onClick={addTask}>Add Task</button></div></div>
 
         <div>
           {sortedTasks.map((task, index) => {
