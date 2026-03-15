@@ -372,7 +372,7 @@ export default function App() {
       notes,
       checklist: newTaskChecklist.filter((item) => item.text.trim() !== ""),
       done: false,
-      star: false,
+      focus: false,
       critical: false,
       createdAt: new Date().toISOString(),
       notesUpdatedAt: null,
@@ -626,9 +626,9 @@ export default function App() {
     setTasks(tasks.filter((t) => t.id !== id));
   }
 
-  function toggleStar(id) {
+  function toggleFocus(id) {
     createDailyRecoveryBackup();
-    setTasks(tasks.map((t) => (t.id === id ? { ...t, star: !t.star } : t)));
+    setTasks(tasks.map((t) => (t.id === id ? { ...t, focus: !t.focus } : t)));
   }
 
   function toggleCritical(id) {
@@ -692,7 +692,7 @@ export default function App() {
   function priorityStyle(task) {
     const style = { borderLeft: "4px solid transparent" };
     if (task.critical) style.borderLeft = darkMode ? "4px solid #f87171" : "4px solid #ef4444";
-    else if (task.star) style.borderLeft = darkMode ? "4px solid #fcd34d" : "4px solid #facc15";
+    else if (task.focus) style.borderLeft = darkMode ? "4px solid #fcd34d" : "4px solid #facc15";
     return style;
   }
 
@@ -893,12 +893,12 @@ export default function App() {
   const theme = getTheme(darkMode);
   const styles = getStyles(theme, isMobile, darkMode);
 
-  function starToggleStyle(isActive) {
+  function focusToggleStyle(isActive) {
     return {
       ...styles.smallButton,
-      background: isActive ? theme.starActiveBg : styles.smallButton.background,
-      border: `1px solid ${isActive ? theme.starActiveBorder : theme.border}`,
-      color: isActive ? theme.starActiveText : styles.smallButton.color,
+      background: isActive ? theme.focusActiveBg : styles.smallButton.background,
+      border: `1px solid ${isActive ? theme.focusActiveBorder : theme.border}`,
+      color: isActive ? theme.focusActiveText : styles.smallButton.color,
       fontWeight: isActive ? 800 : styles.smallButton.fontWeight,
       boxShadow: isActive
         ? darkMode
@@ -1099,10 +1099,10 @@ export default function App() {
                   <div style={styles.taskActionRow}>
                     <button
                       className="pressable"
-                      onClick={() => toggleStar(task.id)}
-                      style={{ ...starToggleStyle(task.star), ...styles.taskActionButton }}
+                      onClick={() => toggleFocus(task.id)}
+                      style={{ ...focusToggleStyle(task.focus), ...styles.taskActionButton }}
                     >
-                      ⭐ Star
+                      {isMobile ? "⭐" : "⭐ Focus"}
                     </button>
 
                     <button
@@ -1110,7 +1110,7 @@ export default function App() {
                       onClick={() => toggleCritical(task.id)}
                       style={{ ...urgentToggleStyle(task.critical), ...styles.taskActionButton }}
                     >
-                      ⚠️ Urgent
+                      {isMobile ? "⚠️" : "⚠️ Urgent"}
                     </button>
 
                     <button
@@ -1118,7 +1118,7 @@ export default function App() {
                       onClick={(e) => completeTask(task, e)}
                       style={{ ...styles.smallButton, ...styles.taskActionButton }}
                     >
-                      ✓ Done
+                      {isMobile ? "✅" : "✅ Done"}
                     </button>
 
                     <button
@@ -1126,7 +1126,7 @@ export default function App() {
                       onClick={() => startEdit(task)}
                       style={{ ...styles.smallButton, ...styles.taskActionButton }}
                     >
-                      Edit
+                      {isMobile ? "✏️" : "✏️ Edit"}
                     </button>
 
                     <button
@@ -1134,7 +1134,7 @@ export default function App() {
                       onClick={() => deleteTask(task.id)}
                       style={{ ...styles.smallButton, ...styles.taskActionButton }}
                     >
-                      Delete
+                      {isMobile ? "❌" : "❌ Delete"}
                     </button>
                   </div>
                 </div>

@@ -24,6 +24,7 @@ export function normalizeTask(task) {
     name: typeof task?.name === "string" ? task.name : "",
     notes: typeof task?.notes === "string" ? task.notes : "",
     checklist: normalizeChecklist(task?.checklist),
+    focus: Boolean(task?.focus ?? task?.star),
     createdAt: typeof task?.createdAt === "string" ? task.createdAt : new Date().toISOString(),
     notesUpdatedAt:
       typeof task?.notesUpdatedAt === "string" || task?.notesUpdatedAt === null
@@ -188,7 +189,7 @@ export function getArchiveGroupISO(dateKey, list) {
 ====================================================== */
 export function getTaskPriority(task) {
   if (task.critical) return 2;
-  if (task.star) return 1;
+  if (task.focus) return 1;
   return 0;
 }
 
@@ -197,7 +198,7 @@ export function sortTasks(list, autoSort) {
 
   return [...list].sort((a, b) => {
     if (a.critical !== b.critical) return Number(b.critical) - Number(a.critical);
-    if (a.star !== b.star) return Number(b.star) - Number(a.star);
+    if (a.focus !== b.focus) return Number(b.focus) - Number(a.focus);
     return 0;
   });
 }
