@@ -1138,6 +1138,12 @@ export default function App() {
         dangerText: "#ffd7df",
         footerBorder: "#3b4f6a",
         starTint: "rgba(147, 197, 253, 0.16)",
+        starActiveBg: "linear-gradient(180deg, #ffe58f 0%, #facc15 100%)",
+        starActiveBorder: "#fbbf24",
+        starActiveText: "#1f2937",
+        urgentActiveBg: "linear-gradient(180deg, #ffb072 0%, #fb923c 100%)",
+        urgentActiveBorder: "#f97316",
+        urgentActiveText: "#1f2937",
       }
     : {
         pageBg: "linear-gradient(180deg, #eef6ff 0%, #f8fbff 35%, #f4f8fc 100%)",
@@ -1166,49 +1172,59 @@ export default function App() {
         dangerText: "#8a1c35",
         footerBorder: "#dbeafe",
         starTint: "rgba(96, 165, 250, 0.18)",
+        starActiveBg: "linear-gradient(180deg, #fde68a 0%, #facc15 100%)",
+        starActiveBorder: "#f59e0b",
+        starActiveText: "#1f2937",
+        urgentActiveBg: "linear-gradient(180deg, #fdba74 0%, #fb923c 100%)",
+        urgentActiveBorder: "#ea580c",
+        urgentActiveText: "#1f2937",
       };
 
   const styles = {
     page: {
       minHeight: "100vh",
       background: theme.pageBg,
-      padding: "24px",
+      padding: isMobile ? "16px 12px 24px" : "24px",
       fontFamily: BODY_FONT,
       display: "flex",
       justifyContent: "center",
       color: theme.text,
+      boxSizing: "border-box",
     },
     wrapper: {
       width: "100%",
       maxWidth: "1020px",
       position: "relative",
+      minWidth: 0,
     },
     row: {
       display: "flex",
       alignItems: "center",
       gap: "8px",
       flexWrap: "wrap",
+      minWidth: 0,
     },
     topBar: {
       display: "grid",
-      gap: "10px",
+      gap: isMobile ? "8px" : "10px",
       marginBottom: "20px",
     },
     headerMain: {
       display: "flex",
       justifyContent: "space-between",
-      alignItems: "flex-start",
-      gap: "16px",
+      alignItems: isMobile ? "center" : "flex-start",
+      gap: isMobile ? "12px" : "16px",
       flexWrap: "nowrap",
     },
     titleWrap: {
       display: "flex",
       alignItems: "center",
-      gap: "18px",
+      gap: isMobile ? "12px" : "18px",
       minWidth: 0,
+      transform: isMobile ? "translateY(-1px)" : "none",
     },
     titleMobileRow: {
-      marginTop: "8px",
+      marginTop: "2px",
       display: "flex",
       justifyContent: "center",
     },
@@ -1217,19 +1233,21 @@ export default function App() {
       fontSize: "34px",
       color: theme.title,
       fontFamily: TITLE_FONT,
-      fontWeight: 700,
+      fontWeight: 800,
       letterSpacing: "0.3px",
       lineHeight: 1.05,
       textAlign: "center",
       whiteSpace: "nowrap",
+      transform: "translateY(-2px)",
     },
     headerRight: {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: "12px",
-      minWidth: "160px",
+      gap: isMobile ? "10px" : "12px",
+      minWidth: isMobile ? "150px" : "160px",
       flexShrink: 0,
+      transform: isMobile ? "translateY(1px)" : "none",
     },
     headerButtons: {
       display: "flex",
@@ -1246,8 +1264,8 @@ export default function App() {
       boxSizing: "border-box",
     },
     titleSticker: {
-      width: "140px",
-      height: "140px",
+      width: isMobile ? "132px" : "140px",
+      height: isMobile ? "132px" : "140px",
       objectFit: "contain",
       cursor: "pointer",
       userSelect: "none",
@@ -1262,10 +1280,12 @@ export default function App() {
         ? "0 10px 24px rgba(2, 6, 23, 0.28)"
         : "0 6px 20px rgba(148, 163, 184, 0.12)",
       border: `1px solid ${theme.border}`,
-      padding: "16px",
+      padding: isMobile ? "14px" : "16px",
       marginBottom: "12px",
       position: "relative",
       overflow: "hidden",
+      minWidth: 0,
+      boxSizing: "border-box",
     },
     cardStars: {
       position: "absolute",
@@ -1279,6 +1299,7 @@ export default function App() {
     },
     input: {
       width: "100%",
+      maxWidth: "100%",
       padding: "10px 12px",
       borderRadius: "12px",
       border: `1px solid ${theme.inputBorder}`,
@@ -1288,9 +1309,11 @@ export default function App() {
       background: theme.inputBg,
       color: theme.inputText,
       minWidth: 0,
+      display: "block",
     },
     textarea: {
       width: "100%",
+      maxWidth: "100%",
       padding: "10px 12px",
       borderRadius: "12px",
       border: `1px solid ${theme.inputBorder}`,
@@ -1301,6 +1324,8 @@ export default function App() {
       fontFamily: BODY_FONT,
       background: theme.inputBg,
       color: theme.inputText,
+      minWidth: 0,
+      display: "block",
     },
     button: {
       padding: "10px 14px",
@@ -1313,6 +1338,9 @@ export default function App() {
       fontFamily: BODY_FONT,
       fontWeight: 700,
       boxSizing: "border-box",
+      minHeight: "44px",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     buttonPrimary: {
       padding: "10px 14px",
@@ -1328,17 +1356,24 @@ export default function App() {
         ? "0 6px 16px rgba(59, 130, 246, 0.18)"
         : "0 6px 16px rgba(59, 130, 246, 0.22)",
       boxSizing: "border-box",
+      minHeight: "44px",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     smallButton: {
-      padding: "4px 8px",
+      padding: "8px 12px",
+      minHeight: "44px",
       borderRadius: "10px",
       border: `1px solid ${theme.border}`,
       background: theme.cardBgSoft,
       color: theme.buttonText,
       cursor: "pointer",
-      fontSize: "12px",
+      fontSize: "13px",
       fontFamily: BODY_FONT,
       fontWeight: 700,
+      boxSizing: "border-box",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     taskName: {
       fontWeight: 800,
@@ -1358,36 +1393,44 @@ export default function App() {
       border: `1px solid ${theme.noteBorder}`,
       borderRadius: "10px",
       padding: "10px",
+      minWidth: 0,
+      overflowWrap: "anywhere",
+      boxSizing: "border-box",
     },
     stickerMenu: {
       position: "absolute",
       right: 0,
       top: "58px",
-      width: "min(380px, calc(100vw - 32px))",
+      width: isMobile ? "min(380px, calc(100vw - 24px))" : "min(380px, calc(100vw - 32px))",
       background: theme.panelBg,
       borderRadius: "16px",
       boxShadow: darkMode
         ? "0 16px 36px rgba(2, 6, 23, 0.35)"
         : "0 16px 36px rgba(148, 163, 184, 0.22)",
-      padding: "14px",
+      padding: isMobile ? "12px" : "14px",
       zIndex: 10,
       border: `1px solid ${theme.border}`,
       boxSizing: "border-box",
+      minWidth: 0,
+      overflowX: "hidden",
     },
     stickerMessage: {
       marginTop: "8px",
       fontSize: "12px",
       color: theme.muted,
       lineHeight: 1.4,
+      overflowWrap: "anywhere",
     },
     archiveTaskRow: {
       display: "grid",
       gap: "8px",
+      minWidth: 0,
     },
     helperText: {
       fontSize: "12px",
       color: theme.muted,
       lineHeight: 1.45,
+      overflowWrap: "anywhere",
     },
     galleryGrid: {
       display: "grid",
@@ -1447,42 +1490,49 @@ export default function App() {
       fontSize: "14px",
       lineHeight: 1.65,
       color: theme.muted,
+      overflowWrap: "anywhere",
     },
     infoPanel: {
       position: "absolute",
       right: 0,
       top: "48px",
-      width: "min(380px, calc(100vw - 32px))",
+      width: isMobile ? "min(400px, calc(100vw - 24px))" : "min(380px, calc(100vw - 32px))",
       background: theme.panelBg,
       borderRadius: "16px",
       boxShadow: darkMode
         ? "0 16px 36px rgba(2, 6, 23, 0.35)"
         : "0 16px 36px rgba(148, 163, 184, 0.22)",
-      padding: "14px",
+      padding: isMobile ? "12px" : "14px",
       zIndex: 10,
       border: `1px solid ${theme.border}`,
       boxSizing: "border-box",
+      minWidth: 0,
+      overflowX: "hidden",
     },
     starPanel: {
       position: "absolute",
       right: 0,
       top: "34px",
-      width: "min(300px, calc(100vw - 32px))",
+      width: isMobile ? "min(320px, calc(100vw - 24px))" : "min(300px, calc(100vw - 32px))",
       background: theme.panelBg,
       borderRadius: "16px",
       boxShadow: darkMode
         ? "0 16px 36px rgba(2, 6, 23, 0.35)"
         : "0 16px 36px rgba(148, 163, 184, 0.22)",
-      padding: "14px",
+      padding: isMobile ? "12px" : "14px",
       zIndex: 10,
       border: `1px solid ${theme.border}`,
       boxSizing: "border-box",
+      minWidth: 0,
+      overflowX: "hidden",
     },
     panelActionRow: {
       display: "grid",
-      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
       gap: "8px",
       marginBottom: "12px",
+      width: "100%",
+      minWidth: 0,
     },
     panelActionButton: {
       padding: "10px 8px",
@@ -1503,9 +1553,14 @@ export default function App() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      width: "100%",
+      maxWidth: "100%",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     detailsToggle: {
       padding: "8px 10px",
+      minHeight: "44px",
       borderRadius: "10px",
       border: `1px solid ${theme.border}`,
       background: theme.cardBgSoft,
@@ -1514,6 +1569,9 @@ export default function App() {
       fontSize: "13px",
       fontFamily: BODY_FONT,
       fontWeight: 700,
+      boxSizing: "border-box",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     footerBar: {
       marginTop: "18px",
@@ -1550,9 +1608,11 @@ export default function App() {
     },
     starActionRow: {
       display: "grid",
-      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
       gap: "8px",
       marginTop: "10px",
+      width: "100%",
+      minWidth: 0,
     },
     starActionButton: {
       padding: "10px 6px",
@@ -1573,6 +1633,9 @@ export default function App() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      width: "100%",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     dangerSection: {
       marginTop: "12px",
@@ -1582,11 +1645,14 @@ export default function App() {
       background: theme.dangerBg,
       display: "grid",
       gap: "8px",
+      minWidth: 0,
+      overflowX: "hidden",
     },
     dangerText: {
       fontSize: "12px",
       lineHeight: 1.5,
       color: theme.dangerText,
+      overflowWrap: "anywhere",
     },
     dangerButton: {
       padding: "10px 14px",
@@ -1600,6 +1666,9 @@ export default function App() {
       fontWeight: 800,
       width: "100%",
       boxSizing: "border-box",
+      minHeight: "44px",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     archiveCompactCard: {
       background: theme.cardBgSoft,
@@ -1611,12 +1680,15 @@ export default function App() {
       boxShadow: darkMode
         ? "0 6px 14px rgba(2, 6, 23, 0.16)"
         : "0 3px 8px rgba(148, 163, 184, 0.08)",
+      minWidth: 0,
+      boxSizing: "border-box",
     },
     archiveCardHeader: {
       display: "flex",
       justifyContent: "space-between",
       gap: "10px",
       alignItems: "center",
+      minWidth: 0,
     },
     archiveTitleRow: {
       display: "flex",
@@ -1631,9 +1703,11 @@ export default function App() {
       fontWeight: 800,
       fontSize: "14px",
       lineHeight: 1.3,
+      overflowWrap: "anywhere",
     },
     archiveInlineNoteButton: {
-      padding: "2px 8px",
+      padding: "6px 10px",
+      minHeight: "36px",
       borderRadius: "999px",
       border: `1px solid ${theme.border}`,
       background: "transparent",
@@ -1643,9 +1717,13 @@ export default function App() {
       fontFamily: BODY_FONT,
       fontWeight: 600,
       lineHeight: 1.2,
+      boxSizing: "border-box",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     archiveUndoButton: {
-      padding: "4px 8px",
+      padding: "8px 12px",
+      minHeight: "44px",
       borderRadius: "10px",
       border: `1px solid ${theme.border}`,
       background: theme.cardBgSoft,
@@ -1655,16 +1733,21 @@ export default function App() {
       fontFamily: BODY_FONT,
       fontWeight: 700,
       flexShrink: 0,
+      boxSizing: "border-box",
+      transition: "transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease",
+      touchAction: "manipulation",
     },
     archiveFilterGrid: {
       display: "grid",
       gap: "10px",
-      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(180px, 1fr))",
       width: "100%",
+      minWidth: 0,
     },
     archiveFilterCell: {
       minWidth: 0,
       width: "100%",
+      boxSizing: "border-box",
     },
     archiveFilterAction: {
       display: "flex",
@@ -1674,9 +1757,77 @@ export default function App() {
     },
     fullWidthButton: {
       width: "100%",
+      maxWidth: "100%",
       boxSizing: "border-box",
     },
+    controlsRow: {
+      ...{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "8px",
+        marginBottom: "14px",
+        position: "relative",
+        alignItems: "center",
+        justifyContent: isMobile ? "center" : "flex-start",
+      },
+    },
+    taskHeaderRow: {
+      display: "grid",
+      gridTemplateColumns: "1fr",
+      gap: "10px",
+      minWidth: 0,
+    },
+    taskTitleRow: {
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: "10px",
+      minWidth: 0,
+    },
+    taskActionRow: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "8px",
+      justifyContent: isMobile ? "center" : "flex-start",
+      minWidth: 0,
+    },
   };
+
+  function interactivePressStyle(baseStyle) {
+    return {
+      ...baseStyle,
+    };
+  }
+
+  function starToggleStyle(isActive) {
+    return {
+      ...styles.smallButton,
+      background: isActive ? theme.starActiveBg : styles.smallButton.background,
+      border: `1px solid ${isActive ? theme.starActiveBorder : theme.border}`,
+      color: isActive ? theme.starActiveText : styles.smallButton.color,
+      fontWeight: isActive ? 800 : styles.smallButton.fontWeight,
+      boxShadow: isActive
+        ? darkMode
+          ? "0 4px 12px rgba(250, 204, 21, 0.22)"
+          : "0 4px 12px rgba(245, 158, 11, 0.18)"
+        : "none",
+    };
+  }
+
+  function urgentToggleStyle(isActive) {
+    return {
+      ...styles.smallButton,
+      background: isActive ? theme.urgentActiveBg : styles.smallButton.background,
+      border: `1px solid ${isActive ? theme.urgentActiveBorder : theme.border}`,
+      color: isActive ? theme.urgentActiveText : styles.smallButton.color,
+      fontWeight: isActive ? 800 : styles.smallButton.fontWeight,
+      boxShadow: isActive
+        ? darkMode
+          ? "0 4px 12px rgba(249, 115, 22, 0.22)"
+          : "0 4px 12px rgba(234, 88, 12, 0.16)"
+        : "none",
+    };
+  }
 
   return (
     <div style={styles.page}>
@@ -1695,6 +1846,7 @@ export default function App() {
               style={styles.galleryExpandedImage}
             />
             <button
+              className="pressable"
               style={styles.button}
               onClick={() => setExpandedGallerySticker(null)}
             >
@@ -1789,11 +1941,18 @@ export default function App() {
           100% { opacity: 1; transform: translateY(0); }
         }
 
+        .pressable:active {
+          transform: scale(0.96);
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
         @media (max-width: 640px) {
           input[type="date"] {
             min-width: 0;
             width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
+            display: block;
           }
         }
       `}</style>
@@ -1845,9 +2004,10 @@ export default function App() {
                     fontSize: "34px",
                     color: theme.title,
                     fontFamily: TITLE_FONT,
-                    fontWeight: 700,
+                    fontWeight: 800,
                     letterSpacing: "0.3px",
                     whiteSpace: "nowrap",
+                    transform: "translateY(-2px)",
                   }}
                 >
                   Tasky Puppy ⭐
@@ -1865,6 +2025,7 @@ export default function App() {
                     animation: pulseStar ? "pulseLite 0.6s ease" : "none",
                     color: theme.title,
                     cursor: "pointer",
+                    minHeight: "44px",
                   }}
                   onClick={toggleStarPanel}
                   title="Click to edit stars"
@@ -1897,7 +2058,7 @@ export default function App() {
                       Displayed total: <strong>{displayStarCount}</strong>
                     </div>
 
-                    <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
+                    <div style={{ display: "grid", gap: "8px", marginTop: "10px", minWidth: 0 }}>
                       <input
                         style={styles.input}
                         type="number"
@@ -1908,15 +2069,27 @@ export default function App() {
                       />
 
                       <div style={styles.starActionRow}>
-                        <button style={styles.starActionButton} onClick={applyManualStarCount}>
+                        <button
+                          className="pressable"
+                          style={styles.starActionButton}
+                          onClick={applyManualStarCount}
+                        >
                           Save Stars
                         </button>
 
-                        <button style={styles.starActionButton} onClick={useCalculatedStarCount}>
+                        <button
+                          className="pressable"
+                          style={styles.starActionButton}
+                          onClick={useCalculatedStarCount}
+                        >
                           Use Counted
                         </button>
 
-                        <button style={styles.starActionButton} onClick={resetStarCount}>
+                        <button
+                          className="pressable"
+                          style={styles.starActionButton}
+                          onClick={resetStarCount}
+                        >
                           Reset to 0
                         </button>
                       </div>
@@ -1928,6 +2101,7 @@ export default function App() {
               <div style={styles.headerButtons}>
                 <div style={{ position: "relative" }} ref={stickerPanelRef}>
                   <button
+                    className="pressable"
                     onClick={toggleStickerPanel}
                     style={{
                       ...styles.button,
@@ -1951,6 +2125,7 @@ export default function App() {
                           Sticker Settings
                         </span>
                         <button
+                          className="pressable"
                           onClick={() => setStickersEnabled(!stickersEnabled)}
                           style={stickersEnabled ? styles.buttonPrimary : styles.button}
                         >
@@ -1964,7 +2139,8 @@ export default function App() {
 
                       <div style={{ marginTop: "10px" }}>
                         <button
-                          style={styles.button}
+                          className="pressable"
+                          style={{ ...styles.button, width: "100%" }}
                           onClick={() => setShowStickerGallery(!showStickerGallery)}
                         >
                           {showStickerGallery
@@ -2031,7 +2207,7 @@ export default function App() {
                             512×512 or smaller.
                           </div>
 
-                          <div style={{ display: "grid", gap: "8px", marginTop: "8px" }}>
+                          <div style={{ display: "grid", gap: "8px", marginTop: "8px", minWidth: 0 }}>
                             <label style={styles.helperText}>Choose a folder:</label>
                             <input
                               type="file"
@@ -2039,6 +2215,7 @@ export default function App() {
                               webkitdirectory=""
                               directory=""
                               onChange={handleStickerFolder}
+                              style={{ minWidth: 0 }}
                             />
 
                             <label style={styles.helperText}>
@@ -2049,6 +2226,7 @@ export default function App() {
                               multiple
                               accept="image/*"
                               onChange={handleStickerFolder}
+                              style={{ minWidth: 0 }}
                             />
                           </div>
 
@@ -2062,6 +2240,7 @@ export default function App() {
                 </div>
 
                 <button
+                  className="pressable"
                   onClick={() => setDarkMode((prev) => !prev)}
                   style={{
                     ...(darkMode ? styles.buttonPrimary : styles.button),
@@ -2082,8 +2261,9 @@ export default function App() {
           )}
         </div>
 
-        <div style={{ ...styles.row, marginBottom: "14px", position: "relative" }}>
+        <div style={styles.controlsRow}>
           <button
+            className="pressable"
             style={autoSort ? styles.buttonPrimary : styles.button}
             onClick={() => setAutoSort(!autoSort)}
           >
@@ -2091,6 +2271,7 @@ export default function App() {
           </button>
 
           <button
+            className="pressable"
             style={nextTaskMode ? styles.buttonPrimary : styles.button}
             onClick={() => setNextTaskMode(!nextTaskMode)}
           >
@@ -2099,6 +2280,7 @@ export default function App() {
 
           <div style={{ position: "relative" }} ref={dataPanelRef}>
             <button
+              className="pressable"
               style={showDataInfo ? styles.buttonPrimary : styles.button}
               onClick={toggleDataPanel}
             >
@@ -2112,18 +2294,23 @@ export default function App() {
                 </div>
 
                 <div style={styles.panelActionRow}>
-                  <button style={styles.panelActionButton} onClick={exportJSON}>
+                  <button className="pressable" style={styles.panelActionButton} onClick={exportJSON}>
                     Export JSON
                   </button>
 
                   <button
+                    className="pressable"
                     style={styles.panelActionButton}
                     onClick={() => importInputRef.current?.click()}
                   >
                     Import JSON
                   </button>
 
-                  <button style={styles.panelActionButton} onClick={restoreRecoveryBackup}>
+                  <button
+                    className="pressable"
+                    style={styles.panelActionButton}
+                    onClick={restoreRecoveryBackup}
+                  >
                     Emergency Restore
                   </button>
                 </div>
@@ -2133,8 +2320,9 @@ export default function App() {
                   regular copies! Or else!
                 </div>
 
-                <div style={{ marginTop: "10px" }}>
+                <div style={{ marginTop: "10px", display: "flex", justifyContent: isMobile ? "center" : "flex-start" }}>
                   <button
+                    className="pressable"
                     style={styles.detailsToggle}
                     onClick={() => setShowDataDetails((prev) => !prev)}
                   >
@@ -2195,7 +2383,7 @@ export default function App() {
                         preferences.
                       </div>
 
-                      <button style={styles.dangerButton} onClick={deleteAllData}>
+                      <button className="pressable" style={styles.dangerButton} onClick={deleteAllData}>
                         Delete All Data
                       </button>
                     </div>
@@ -2232,7 +2420,7 @@ export default function App() {
               onChange={(e) => setNotes(e.target.value)}
             />
 
-            <button style={styles.buttonPrimary} onClick={addTask}>
+            <button className="pressable" style={styles.buttonPrimary} onClick={addTask}>
               Add Task
             </button>
           </div>
@@ -2270,9 +2458,9 @@ export default function App() {
               >
                 <div style={styles.cardStars}>✦</div>
 
-                <div style={{ ...styles.row, justifyContent: "space-between" }}>
-                  <div style={{ ...styles.row, flex: 1 }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <div style={styles.taskHeaderRow}>
+                  <div style={styles.taskTitleRow}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}>
                       {isNextTask && (
                         <div
                           style={{
@@ -2284,26 +2472,48 @@ export default function App() {
                           Next Up
                         </div>
                       )}
-                      <p style={styles.taskName}>{task.name}</p>
+                      <p style={{ ...styles.taskName, overflowWrap: "anywhere" }}>{task.name}</p>
                     </div>
+                  </div>
 
-                    <button onClick={() => toggleStar(task.id)} style={styles.smallButton}>
-                      {task.star ? "⭐" : "☆"}
+                  <div style={styles.taskActionRow}>
+                    <button
+                      className="pressable"
+                      onClick={() => toggleStar(task.id)}
+                      style={starToggleStyle(task.star)}
+                    >
+                      ⭐ Star
                     </button>
 
-                    <button onClick={() => toggleCritical(task.id)} style={styles.smallButton}>
-                      {task.critical ? "⚠️" : "⚠"}
+                    <button
+                      className="pressable"
+                      onClick={() => toggleCritical(task.id)}
+                      style={urgentToggleStyle(task.critical)}
+                    >
+                      ⚠️ Urgent
                     </button>
 
-                    <button onClick={(e) => completeTask(task, e)} style={styles.smallButton}>
-                      ✓
+                    <button
+                      className="pressable"
+                      onClick={(e) => completeTask(task, e)}
+                      style={styles.smallButton}
+                    >
+                      ✓ Done
                     </button>
 
-                    <button onClick={() => startEdit(task)} style={styles.smallButton}>
+                    <button
+                      className="pressable"
+                      onClick={() => startEdit(task)}
+                      style={styles.smallButton}
+                    >
                       Edit
                     </button>
 
-                    <button onClick={() => deleteTask(task.id)} style={styles.smallButton}>
+                    <button
+                      className="pressable"
+                      onClick={() => deleteTask(task.id)}
+                      style={styles.smallButton}
+                    >
                       Delete
                     </button>
                   </div>
@@ -2329,21 +2539,25 @@ export default function App() {
                       placeholder="Notes"
                     />
 
-                    <button
-                      style={{ ...styles.buttonPrimary, width: "fit-content" }}
-                      onClick={() => saveNotes(task.id)}
-                    >
-                      Save Changes
-                    </button>
+                    <div style={{ display: "flex", justifyContent: isMobile ? "center" : "flex-start" }}>
+                      <button
+                        className="pressable"
+                        style={{ ...styles.buttonPrimary, width: isMobile ? "100%" : "fit-content" }}
+                        onClick={() => saveNotes(task.id)}
+                      >
+                        Save Changes
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   task.notes && (
                     <div style={{ marginTop: "10px" }}>
                       <button
+                        className="pressable"
                         style={{ ...styles.smallButton, marginBottom: "6px" }}
                         onClick={() => toggleNotes(task.id)}
                       >
-                        {expandedNotes[task.id] ? "▼ Notes" : "▶ Notes"}
+                        {expandedNotes[task.id] ? "▾ Notes" : "▸ Notes"}
                       </button>
 
                       <div style={styles.noteText}>
@@ -2360,10 +2574,11 @@ export default function App() {
         <div style={styles.card}>
           <div style={styles.cardStars}>✦ ✦ ✦</div>
           <button
+            className="pressable"
             style={{ ...styles.button, marginBottom: showArchive ? "12px" : 0 }}
             onClick={() => setShowArchive(!showArchive)}
           >
-            {showArchive ? "▼ Daily Archive" : "▶ Daily Archive"}
+            {showArchive ? "▾ Daily Archive" : "▸ Daily Archive"}
           </button>
 
           {showArchive && (
@@ -2378,6 +2593,7 @@ export default function App() {
                   display: "grid",
                   gap: "12px",
                   marginBottom: "12px",
+                  minWidth: 0,
                 }}
               >
                 <input
@@ -2410,6 +2626,7 @@ export default function App() {
 
                   <div style={styles.archiveFilterAction}>
                     <button
+                      className="pressable"
                       style={{ ...styles.button, ...styles.fullWidthButton }}
                       onClick={() => {
                         setArchiveStartDate("");
@@ -2422,14 +2639,14 @@ export default function App() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gap: "16px" }}>
+              <div style={{ display: "grid", gap: "16px", minWidth: 0 }}>
                 {archiveEntries.map((entry) => (
                   <div key={entry.date}>
                     <div style={{ fontWeight: 700, color: theme.muted, marginBottom: "6px" }}>
                       {entry.date}
                     </div>
 
-                    <div style={{ display: "grid", gap: "8px", paddingLeft: "8px" }}>
+                    <div style={{ display: "grid", gap: "8px", paddingLeft: "8px", minWidth: 0 }}>
                       {entry.list.map((task) => {
                         const archiveNoteKey = `${entry.date}-${task.id}`;
                         const notesOpen = expandedArchiveNotes[archiveNoteKey];
@@ -2443,6 +2660,7 @@ export default function App() {
 
                                   {task.notes && (
                                     <button
+                                      className="pressable"
                                       style={styles.archiveInlineNoteButton}
                                       onClick={() => toggleArchiveNotes(archiveNoteKey)}
                                     >
@@ -2452,6 +2670,7 @@ export default function App() {
                                 </div>
 
                                 <button
+                                  className="pressable"
                                   style={styles.archiveUndoButton}
                                   onClick={() => undoFromArchive(task, entry.date)}
                                 >
