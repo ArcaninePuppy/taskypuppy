@@ -1,3 +1,52 @@
+export function createChecklistItem(text = "") {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    text,
+    completed: false,
+  };
+}
+
+export function normalizeChecklist(checklist) {
+  if (!Array.isArray(checklist)) return [];
+  return checklist.map((item, index) => ({
+    id:
+      item && (typeof item.id === "string" || typeof item.id === "number")
+        ? String(item.id)
+        : `check-${Date.now()}-${index}`,
+    text: item && typeof item.text === "string" ? item.text : "",
+    completed: Boolean(item?.completed),
+  }));
+}
+
+export function normalizeTask(task) {
+  return {
+    ...task,
+    name: typeof task?.name === "string" ? task.name : "",
+    notes: typeof task?.notes === "string" ? task.notes : "",
+    checklist: normalizeChecklist(task?.checklist),
+    createdAt: typeof task?.createdAt === "string" ? task.createdAt : new Date().toISOString(),
+    notesUpdatedAt:
+      typeof task?.notesUpdatedAt === "string" || task?.notesUpdatedAt === null
+        ? task.notesUpdatedAt
+        : null,
+  };
+}
+
+export function normalizeTaskList(tasks) {
+  return Array.isArray(tasks) ? tasks.map(normalizeTask) : [];
+}
+
+export function normalizeArchive(archive) {
+  if (!archive || typeof archive !== "object") return {};
+  return Object.fromEntries(
+    Object.entries(archive).map(([dateKey, list]) => [dateKey, normalizeTaskList(list)])
+  );
+}
+
+export function taskHasDetails(task) {
+  return Boolean((task?.notes || "").trim()) || (task?.checklist || []).length > 0;
+}
+
 export function isValidArchivedTask(task, dateKey) {
   if (!dateKey || typeof dateKey !== "string" || !dateKey.trim()) return false;
   if (!task || typeof task !== "object") return false;
@@ -26,36 +75,30 @@ export function buildStoragePayload(nextTasks, nextArchive, nextManualStars) {
 
   return {
     app: "TaskyPuppy",
-    version: 1,
+    version: 2,
     savedAt: new Date().toISOString(),
     stars: {
       userModifiedTotal: nextManualStars,
       appCountedTotal: calculated,
       effectiveTotal: getEffectiveStarTotal(nextManualStars, calculated),
     },
-    tasks: nextTasks,
-    dailyArchive: nextArchive,
+    tasks: normalizeTaskList(nextTasks),
+    dailyArchive: normalizeArchive(nextArchive),
   };
-}
-
-export function notePreview(text) {
-  if (!text) return "";
-  if (text.length <= 80) return text;
-  return text.substring(0, 80) + "...";
 }
 
 export function mergeUniqueById(listA, listB) {
   const map = new Map();
-  [...listA, ...listB].forEach((item) => {
+  [...normalizeTaskList(listA), ...normalizeTaskList(listB)].forEach((item) => {
     map.set(item.id, item);
   });
   return Array.from(map.values());
 }
 
 export function mergeArchives(currentArchive, importedArchive) {
-  const merged = { ...currentArchive };
+  const merged = { ...normalizeArchive(currentArchive) };
 
-  for (const [date, importedList] of Object.entries(importedArchive || {})) {
+  for (const [date, importedList] of Object.entries(normalizeArchive(importedArchive))) {
     const currentList = merged[date] || [];
     merged[date] = mergeUniqueById(currentList, importedList);
   }
@@ -64,23 +107,18 @@ export function mergeArchives(currentArchive, importedArchive) {
 }
 
 export function normalizeImportData(data) {
-  const importedArchive =
-    data.dailyArchive && typeof data.dailyArchive === "object" ? data.dailyArchive : {};
-
+  const importedArchive = normalizeArchive(data?.dailyArchive);
   const importedCalculated = calculateStarCountFromArchive(importedArchive);
 
-  let importedManual = null;
-
-  if (
-    data.stars &&
+  const importedManual =
+    data?.stars &&
     typeof data.stars === "object" &&
     (data.stars.userModifiedTotal === null || typeof data.stars.userModifiedTotal === "number")
-  ) {
-    importedManual = data.stars.userModifiedTotal;
-  }
+      ? data.stars.userModifiedTotal
+      : null;
 
   return {
-    tasks: Array.isArray(data.tasks) ? data.tasks : [],
+    tasks: normalizeTaskList(data?.tasks),
     dailyArchive: importedArchive,
     starCountManual: importedManual,
     starCountCalculated: importedCalculated,
