@@ -47,6 +47,9 @@ export function taskHasDetails(task) {
   return Boolean((task?.notes || "").trim()) || (task?.checklist || []).length > 0;
 }
 
+/* ======================================================
+   ARCHIVE HELPERS
+====================================================== */
 export function isValidArchivedTask(task, dateKey) {
   if (!dateKey || typeof dateKey !== "string" || !dateKey.trim()) return false;
   if (!task || typeof task !== "object") return false;
@@ -66,6 +69,9 @@ export function calculateStarCountFromArchive(archive) {
   }, 0);
 }
 
+/* ======================================================
+   STORAGE HELPERS
+====================================================== */
 export function getEffectiveStarTotal(manualValue, calculatedValue) {
   return manualValue !== null ? manualValue : calculatedValue;
 }
@@ -125,6 +131,9 @@ export function normalizeImportData(data) {
   };
 }
 
+/* ======================================================
+   DATE HELPERS
+====================================================== */
 export function normalizeToISODate(value) {
   if (!value || typeof value !== "string") return "";
 
@@ -174,6 +183,9 @@ export function getArchiveGroupISO(dateKey, list) {
   return normalizeToISODate(dateKey);
 }
 
+/* ======================================================
+   TASK HELPERS
+====================================================== */
 export function getTaskPriority(task) {
   if (task.critical) return 2;
   if (task.star) return 1;

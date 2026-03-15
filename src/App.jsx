@@ -18,6 +18,10 @@ import {
 } from "./taskyHelpers";
 import { getStyles, getTheme } from "./taskyStyles";
 
+/* ======================================================
+   STICKER ASSETS
+====================================================== */
+
 const stickerModules = import.meta.glob(
   [
     "./assets/stickers/*.png",
@@ -38,13 +42,22 @@ const defaultStickerPack = Object.entries(stickerModules)
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, module]) => module.default);
 
+/* ======================================================
+   STORAGE KEYS
+====================================================== */
 const STORAGE_KEY = "tasky_puppy_data_v1";
 const BACKUP_KEY = "tasky_puppy_backup_v1";
 const BACKUP_META_KEY = "tasky_puppy_backup_meta_v1";
 const DARK_MODE_KEY = "tasky_puppy_dark_mode_v1";
 const STICKERS_ENABLED_KEY = "tasky_puppy_stickers_enabled_v1";
 
+/* ======================================================
+   APP COMPONENT
+====================================================== */
 export default function App() {
+  /* ======================================================
+     STATE
+  ====================================================== */
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
   const [notes, setNotes] = useState("");
@@ -95,12 +108,18 @@ export default function App() {
   const starPanelRef = useRef(null);
   const celebrateTimerRef = useRef(null);
 
+  /* ======================================================
+     EFFECTS
+  ====================================================== */
   useEffect(() => {
     function handleResize() {
       setIsMobile(window.innerWidth <= 640);
     }
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    /* ======================================================
+     MAIN RENDER
+  ====================================================== */
+  return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -109,6 +128,9 @@ export default function App() {
     };
   }, []);
 
+  /* ======================================================
+     PANEL CONTROLS
+  ====================================================== */
   function closeAllPanels() {
     setShowDataInfo(false);
     setShowDataDetails(false);
@@ -310,6 +332,9 @@ export default function App() {
     celebrateTimerRef.current = setTimeout(() => setHeaderCelebrate(false), 800);
   }
 
+  /* ======================================================
+     TASK CREATION
+  ====================================================== */
   function addNewTaskChecklistItem() {
     setNewTaskChecklist((prev) => [...prev, createChecklistItem("")]);
   }
@@ -407,6 +432,9 @@ export default function App() {
     setTasks((prev) => prev.map((task) => (task.id === taskId ? normalizeTask(updater(task)) : task)));
   }
 
+  /* ======================================================
+     TASK EDITING AND CHECKLISTS
+  ====================================================== */
   function addChecklistItemToEditor() {
     setEditingChecklist((prev) => [...prev, createChecklistItem("")]);
   }
@@ -432,6 +460,9 @@ export default function App() {
     }));
   }
 
+  /* ======================================================
+     TASK COMPLETION AND ARCHIVE MOVES
+  ====================================================== */
   function completeTask(task, e) {
     createDailyRecoveryBackup();
     const rect = e.currentTarget.getBoundingClientRect();
@@ -652,6 +683,9 @@ export default function App() {
     return style;
   }
 
+  /* ======================================================
+     IMPORT / EXPORT / DATA MANAGEMENT
+  ====================================================== */
   function exportJSON() {
     const exportPayload = {
       stars: {
@@ -798,6 +832,9 @@ export default function App() {
 
   const hasArchiveFilters = archiveSearch.trim() !== "" || archiveStartDate !== "" || archiveEndDate !== "";
 
+  /* ======================================================
+     DERIVED DATA
+  ====================================================== */
   const filteredTasks = tasks.filter((t) => {
     const q = queueSearch.toLowerCase();
     return t.name.toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q) || (t.checklist || []).some((item) => (item.text || "").toLowerCase().includes(q));
@@ -873,6 +910,9 @@ export default function App() {
     };
   }
 
+  /* ======================================================
+     RENDER HELPERS
+  ====================================================== */
   const desktopTitleBlock = (
     <div style={styles.titleBlock}>
       <h1 style={{ ...styles.titleText, animation: headerCelebrate ? "tpTitleGlow 0.8s ease" : "none" }}>Tasky Puppy</h1>
