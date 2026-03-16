@@ -1162,8 +1162,66 @@ export default function App() {
         </div>
 
         <div style={{ marginBottom: "12px" }}><input style={styles.input} placeholder="Search active tasks..." value={queueSearch} onChange={(e) => setQueueSearch(e.target.value)} /></div>
-        <div style={styles.card}><div style={styles.cardStars}>✦ ✦ ✦</div><div style={{ display: "grid", gap: "12px" }}><input style={styles.input} maxLength={100} placeholder="Task name" value={taskName} onChange={(e) => setTaskName(e.target.value)} /><textarea style={styles.textarea} placeholder="Details / notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} /><div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.length > 0 && (<div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.map((item) => (<div key={item.id} style={styles.checklistEditRow}><input style={{ ...styles.input, minWidth: 0 }} placeholder="Checklist item" value={item.text} onChange={(e) => updateNewTaskChecklistItem(item.id, e.target.value)} /><button className="pressable" style={styles.smallButton} onClick={() => deleteNewTaskChecklistItem(item.id)}>{isMobile ? "❌" : "❌ Delete"}</button></div>))}</div>)}<button className="pressable" style={styles.button} onClick={addNewTaskChecklistItem}>+ Add Checklist Item (optional)</button></div><button className="pressable" style={styles.buttonPrimary} onClick={addTask}>Add Task</button></div></div>
+        <div style={styles.card}>
+          <div style={styles.cardStars}>✦ ✦ ✦</div>
 
+          <div style={{ display: "grid", gap: "12px" }}>
+            <input
+              style={styles.input}
+              maxLength={100}
+              placeholder="Task name"
+              value={taskName}
+              onChange={(e) => setTaskName(e.target.value)}
+            />
+
+            <textarea
+              style={styles.textarea}
+              placeholder="Details / notes (optional)"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+
+            <div style={{ display: "grid", gap: "8px" }}>
+              {newTaskChecklist.length > 0 && (
+                <div style={{ display: "grid", gap: "8px" }}>
+                  {newTaskChecklist.map((item) => (
+                    <div key={item.id} style={styles.checklistRow}>
+                      <input
+                        style={{ ...styles.input, ...styles.checklistTextInput }}
+                        placeholder="Checklist item"
+                        value={item.text}
+                        onChange={(e) => updateNewTaskChecklistItem(item.id, e.target.value)}
+                      />
+                      <button
+                        className="pressable"
+                        style={styles.smallButton}
+                        onClick={() => deleteNewTaskChecklistItem(item.id)}
+                      >
+                        {isMobile ? "❌" : "❌ Delete"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                className="pressable"
+                style={styles.button}
+                onClick={addNewTaskChecklistItem}
+              >
+                + Add Checklist Item (optional)
+              </button>
+            </div>
+
+            <button
+              className="pressable"
+              style={styles.buttonPrimary}
+              onClick={addTask}
+            >
+              Add Task
+            </button>
+          </div>
+        </div>
         <div>
           {sortedTasks.map((task, index) => {
             const isNextTask = nextTaskMode && index === 0;
