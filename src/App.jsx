@@ -1076,13 +1076,15 @@ export default function App() {
         @keyframes tpMascotBounce {0% { transform: translateY(0) scale(1); }22% { transform: translateY(-8px) scale(1.03); }45% { transform: translateY(0) scale(0.995); }65% { transform: translateY(-3px) scale(1.01); }100% { transform: translateY(0) scale(1); }}
         @keyframes tpStarPop {0% { transform: scale(1); }25% { transform: scale(1.12); }45% { transform: scale(0.98); }100% { transform: scale(1); }}
         @keyframes tpTitleGlow {0% { text-shadow: 0 0 0 rgba(255,255,255,0); transform: scale(1);}30% { text-shadow: 0 0 12px rgba(150,180,255,0.28), 0 0 24px rgba(255,215,120,0.18); transform: scale(1.015);}100% { text-shadow: 0 0 12px rgba(150,180,255,0.18), 0 0 2px rgba(255,255,255,0.12); transform: scale(1); }}
+        @keyframes starDriftPrimary {0% { background-position: center bottom; } 100% { background-position: center 28px; }}
+        @keyframes starDriftSecondary {0% { background-position: center bottom; } 100% { background-position: center -22px; }}
         .pressable:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.18); }
         .pressable:active { transform: scale(0.96); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
         * { box-sizing: border-box; }
         @media (max-width: 640px) { input[type="date"] { min-width: 0; width: 100%; max-width: 100%; min-height: 44px; box-sizing: border-box; display: block; -webkit-appearance: none; appearance: none; font-size: 16px; line-height: 1.2; } .pressable:hover { transform: none; box-shadow: none; } }
       `}</style>
 
-      <div style={styles.wrapper}><div style={styles.bottomStarField} />
+      <div style={styles.wrapper}><div style={styles.bottomStarField} /><div style={styles.bottomStarFieldSecondary} />
         <input ref={importInputRef} type="file" accept="application/json,.json" onChange={handleImportFile} style={{ display: "none" }} />
         <div style={styles.topBar}>
           <div style={styles.headerMain}>
