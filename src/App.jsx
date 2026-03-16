@@ -1374,18 +1374,19 @@ export default function App() {
                         opacity: detailsOpen ? 1 : 0,
                         transform: detailsOpen ? "translateY(0)" : "translateY(-4px)",
                         transition: "max-height 240ms ease, opacity 180ms ease, transform 180ms ease",
+                        overflowY: detailsOpen ? "auto" : "hidden",
+                        paddingRight: detailsOpen ? "6px" : undefined,
                       }}
-                    >
-                      <div
-                        style={{
-                          ...styles.noteText,
-                          marginTop: "8px",
-                          display: "grid",
-                          gap: "10px",
-                          textAlign: "left",
-                          justifyItems: "stretch",
-                        }}
-                      >                        {task.notes && <div>{task.notes}</div>}
+                    >                      <div
+                      style={{
+                        ...styles.noteText,
+                        marginTop: "8px",
+                        display: "grid",
+                        gap: "10px",
+                        textAlign: "left",
+                        justifyItems: "stretch",
+                      }}
+                    >                        {task.notes && <div>{task.notes}</div>}
 
                         {(task.checklist || []).length > 0 && (
                           <div style={{ display: "grid", gap: "8px" }}>
