@@ -18,6 +18,11 @@ export function normalizeChecklist(checklist) {
   }));
 }
 
+export function normalizeCustomStickerList(stickers) {
+  if (!Array.isArray(stickers)) return [];
+  return stickers.filter((item) => typeof item === "string" && item.startsWith("data:image/"));
+}
+
 export function normalizeTask(task) {
   return {
     ...task,
@@ -77,7 +82,7 @@ export function getEffectiveStarTotal(manualValue, calculatedValue) {
   return manualValue !== null ? manualValue : calculatedValue;
 }
 
-export function buildStoragePayload(nextTasks, nextArchive, nextManualStars) {
+export function buildStoragePayload(nextTasks, nextArchive, nextManualStars, nextCustomStickers = []) {
   const calculated = calculateStarCountFromArchive(nextArchive);
 
   return {
@@ -91,6 +96,7 @@ export function buildStoragePayload(nextTasks, nextArchive, nextManualStars) {
     },
     tasks: normalizeTaskList(nextTasks),
     dailyArchive: normalizeArchive(nextArchive),
+    customStickers: normalizeCustomStickerList(nextCustomStickers),
   };
 }
 
@@ -129,6 +135,7 @@ export function normalizeImportData(data) {
     dailyArchive: importedArchive,
     starCountManual: importedManual,
     starCountCalculated: importedCalculated,
+    customStickers: normalizeCustomStickerList(data?.customStickers),
   };
 }
 

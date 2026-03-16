@@ -37,6 +37,8 @@ export function getTheme(darkMode) {
         urgentActiveBg: "linear-gradient(180deg, #ffb072 0%, #fb923c 100%)",
         urgentActiveBorder: "#f97316",
         urgentActiveText: "#1f2937",
+        starFieldBg: "#30356f",
+        starFieldStar: "rgba(255,255,255,0.82)",
       }
     : {
         pageBg: "linear-gradient(180deg, #eef6ff 0%, #f8fbff 35%, #f4f8fc 100%)",
@@ -71,7 +73,14 @@ export function getTheme(darkMode) {
         urgentActiveBg: "linear-gradient(180deg, #fdba74 0%, #fb923c 100%)",
         urgentActiveBorder: "#ea580c",
         urgentActiveText: "#1f2937",
+        starFieldBg: "#dfe9ff",
+        starFieldStar: "rgba(255,255,255,0.92)",
       };
+}
+
+function createStarPattern(fillColor) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="88" height="88" viewBox="0 0 88 88"><polygon fill="${fillColor}" points="44,8 52.816,31.865 78.238,32.875 58.3,48.688 65.196,73.135 44,58.9 22.804,73.135 29.7,48.688 9.762,32.875 35.184,31.865"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
 export function getStyles(theme, isMobile, darkMode) {
@@ -86,7 +95,8 @@ export function getStyles(theme, isMobile, darkMode) {
       color: theme.text,
       boxSizing: "border-box",
     },
-    wrapper: { width: "100%", maxWidth: "1020px", position: "relative", minWidth: 0 },
+    wrapper: { width: "100%", maxWidth: "1020px", position: "relative", minWidth: 0, zIndex: 1 },
+    bottomStarField: { position: "fixed", left: 0, right: 0, bottom: 0, height: isMobile ? "48vh" : "44vh", pointerEvents: "none", zIndex: 0, backgroundColor: theme.starFieldBg, backgroundImage: createStarPattern(theme.starFieldStar), backgroundRepeat: "repeat", backgroundSize: isMobile ? "78px 78px" : "92px 92px", opacity: darkMode ? 0.26 : 0.48, WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 38%, rgba(0,0,0,0.45) 62%, rgba(0,0,0,0) 100%)", maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 38%, rgba(0,0,0,0.45) 62%, rgba(0,0,0,0) 100%)" },
     row: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", minWidth: 0 },
     topBar: { display: "grid", gap: isMobile ? "10px" : "12px", marginBottom: isMobile ? "16px" : "18px" },
     headerMain: isMobile
@@ -146,8 +156,11 @@ export function getStyles(theme, isMobile, darkMode) {
     archiveTaskRow: { display: "grid", gap: "8px", minWidth: 0 },
     helperText: { fontSize: "12px", color: theme.muted, lineHeight: 1.45, overflowWrap: "anywhere" },
     galleryGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(74px, 1fr))", gap: "10px", marginTop: "10px" },
-    galleryTile: { borderRadius: "14px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, padding: "8px", display: "grid", gap: "6px", justifyItems: "center", transition: "transform 0.18s ease, box-shadow 0.18s ease", minHeight: "84px" },
+    galleryTile: { borderRadius: "14px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, padding: "8px", display: "grid", gap: "6px", justifyItems: "center", transition: "transform 0.18s ease, box-shadow 0.18s ease", minHeight: "84px", position: "relative" },
     galleryThumb: { width: "56px", height: "56px", objectFit: "contain", transition: "transform 0.18s ease", pointerEvents: "auto", userSelect: "none" },
+    galleryDeleteButton: { position: "absolute", top: "6px", right: "6px", minWidth: "28px", minHeight: "28px", width: "28px", height: "28px", borderRadius: "999px", border: `1px solid ${theme.dangerBorder}`, background: darkMode ? "rgba(81, 46, 53, 0.95)" : "rgba(255, 240, 242, 0.98)", color: theme.dangerText, cursor: "pointer", fontSize: "12px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" },
+    stickerManagerActions: { display: "grid", gap: "8px", marginTop: "10px" },
+    stickerFileInput: { width: "100%", fontSize: "12px", color: theme.muted },
     galleryExpandedOverlay: { position: "fixed", inset: 0, background: darkMode ? "rgba(2, 6, 23, 0.62)" : "rgba(15, 23, 42, 0.38)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9998, padding: "24px" },
     galleryExpandedCard: { background: theme.cardBgSoft, borderRadius: "20px", border: `1px solid ${theme.border}`, boxShadow: darkMode ? "0 20px 50px rgba(2, 6, 23, 0.45)" : "0 20px 50px rgba(15, 23, 42, 0.2)", padding: "18px", maxWidth: "min(92vw, 560px)", maxHeight: "90vh", display: "grid", gap: "10px", justifyItems: "center" },
     galleryExpandedImage: { maxWidth: "min(80vw, 512px)", maxHeight: "70vh", objectFit: "contain" },
@@ -175,6 +188,8 @@ export function getStyles(theme, isMobile, darkMode) {
     archiveTaskName: { color: theme.text, fontWeight: 800, fontSize: "14px", lineHeight: 1.3, overflowWrap: "anywhere" },
     archiveInlineNoteButton: { padding: "6px 10px", minHeight: "36px", borderRadius: "999px", border: `1px solid ${theme.border}`, background: "transparent", color: theme.muted, cursor: "pointer", fontSize: "11px", fontFamily: BODY_FONT, fontWeight: 600, lineHeight: 1.2, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
     archiveUndoButton: { padding: "8px 12px", minHeight: "44px", borderRadius: "10px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, color: theme.buttonText, cursor: "pointer", fontSize: "12px", fontFamily: BODY_FONT, fontWeight: 700, flexShrink: 0, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
+    archiveDeleteButton: { padding: "8px 12px", minHeight: "44px", borderRadius: "10px", border: `1px solid ${theme.dangerBorder}`, background: darkMode ? "rgba(81, 46, 53, 0.95)" : "rgba(255, 240, 242, 0.98)", color: theme.dangerText, cursor: "pointer", fontSize: "12px", fontFamily: BODY_FONT, fontWeight: 800, flexShrink: 0, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
+    archiveActionsRow: { display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 },
     archiveFilterGrid: { display: "grid", gap: "10px", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1fr) minmax(0, 1fr) auto", width: "100%", minWidth: 0, alignItems: isMobile ? "start" : "end" },
     archiveFilterCell: { minWidth: 0, width: "100%", boxSizing: "border-box", display: "grid", gap: "4px", alignContent: "start" },
     archiveFilterAction: { display: "flex", alignItems: "flex-end", minWidth: 0, width: "100%", boxSizing: "border-box", justifyContent: "stretch" },

@@ -50,6 +50,9 @@ const BACKUP_KEY = "tasky_puppy_backup_v1";
 const BACKUP_META_KEY = "tasky_puppy_backup_meta_v1";
 const DARK_MODE_KEY = "tasky_puppy_dark_mode_v1";
 const STICKERS_ENABLED_KEY = "tasky_puppy_stickers_enabled_v1";
+const CUSTOM_STICKER_MAX_COUNT = 20;
+const CUSTOM_STICKER_MAX_FILE_BYTES = 500 * 1024;
+const CUSTOM_STICKER_MAX_TOTAL_BYTES = 4 * 1024 * 1024;
 
 /* ======================================================
    APP COMPONENT
@@ -212,6 +215,7 @@ export default function App() {
         setDailyArchive(
           parsed.dailyArchive && typeof parsed.dailyArchive === "object" ? parsed.dailyArchive : {}
         );
+        setUploadedStickers(Array.isArray(parsed.customStickers) ? parsed.customStickers : []);
         setStarCountManual(
           parsed?.stars?.userModifiedTotal === null ||
             typeof parsed?.stars?.userModifiedTotal === "number"
@@ -244,6 +248,7 @@ export default function App() {
           setDailyArchive(
             parsed.dailyArchive && typeof parsed.dailyArchive === "object" ? parsed.dailyArchive : {}
           );
+          setUploadedStickers(Array.isArray(parsed.customStickers) ? parsed.customStickers : []);
           setStarCountManual(
             parsed?.stars?.userModifiedTotal === null ||
               typeof parsed?.stars?.userModifiedTotal === "number"
@@ -265,12 +270,12 @@ export default function App() {
   useEffect(() => {
     if (!hasLoadedFromStorage) return;
     try {
-      const payload = buildStoragePayload(tasks, dailyArchive, starCountManual);
+      const payload = buildStoragePayload(tasks, dailyArchive, starCountManual, uploadedStickers);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (error) {
       console.error("Failed to save TaskyPuppy data:", error);
     }
-  }, [tasks, dailyArchive, starCountManual, hasLoadedFromStorage]);
+  }, [tasks, dailyArchive, starCountManual, uploadedStickers, hasLoadedFromStorage]);
 
   useEffect(() => {
     try {
@@ -300,19 +305,6 @@ export default function App() {
       setTitleSticker(null);
     }
   }, []);
-
-  useEffect(() => {
-    if (!isMobile) return undefined;
-    const previousOverflow = document.body.style.overflow;
-    if (showDataInfo) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = previousOverflow || "";
-    }
-    return () => {
-      document.body.style.overflow = previousOverflow || "";
-    };
-  }, [showDataInfo, isMobile]);
 
   useEffect(() => {
     function handlePointerDown(event) {
@@ -545,6 +537,7 @@ export default function App() {
       const backupMeta = backupMetaRaw ? JSON.parse(backupMetaRaw) : null;
       setTasks(normalizeTaskList(parsed.tasks));
       setDailyArchive(normalizeArchive(parsed.dailyArchive));
+      setUploadedStickers(Array.isArray(parsed.customStickers) ? parsed.customStickers : []);
       setStarCountManual(
         parsed?.stars?.userModifiedTotal === null ||
           typeof parsed?.stars?.userModifiedTotal === "number"
@@ -614,6 +607,9 @@ export default function App() {
       setShowDataInfo(false);
       setDarkMode(false);
       setStickersEnabled(false);
+      setUploadedStickers([]);
+      setStickers(defaultStickerPack);
+      setStickerMessage("");
       window.alert("All local Tasky Puppy data was deleted from this browser.");
     } catch (error) {
       console.error("Failed to delete TaskyPuppy data:", error);
@@ -622,8 +618,24 @@ export default function App() {
   }
 
   function deleteTask(id) {
+    const task = tasks.find((entry) => entry.id === id);
+    const label = task?.name?.trim() || "this task";
+    const confirmed = window.confirm(`Delete "${label}"? This cannot be undone.`);
+    if (!confirmed) return;
     createDailyRecoveryBackup();
     setTasks(tasks.filter((t) => t.id !== id));
+  }
+
+  function deleteArchivedTask(task, date) {
+    const label = task?.name?.trim() || "this archived task";
+    const confirmed = window.confirm(`Delete archived task "${label}"? This cannot be undone.`);
+    if (!confirmed) return;
+    createDailyRecoveryBackup();
+    setDailyArchive((prev) => {
+      const next = { ...prev, [date]: (prev[date] || []).filter((entry) => entry.id !== task.id) };
+      if (next[date]?.length === 0) delete next[date];
+      return next;
+    });
   }
 
   function toggleFocus(id) {
@@ -708,9 +720,10 @@ export default function App() {
       },
       app: "TaskyPuppy",
       exportedAt: new Date().toISOString(),
-      version: 1,
+      version: 3,
       tasks,
       dailyArchive,
+      customStickers: uploadedStickers,
     };
 
     const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
@@ -739,34 +752,90 @@ export default function App() {
     });
   }
 
-  async function handleStickerFolder(e) {
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+      reader.onerror = () => reject(new Error("Could not read sticker file."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function estimateStickerDataSize(list) {
+    return list.reduce((total, item) => total + item.length, 0);
+  }
+
+  async function handleStickerUpload(e) {
     const files = Array.from(e.target.files || []);
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
     if (imageFiles.length === 0) {
       setStickerMessage("No image files were found.");
       return;
     }
 
-    const validFiles = [];
-    let rejectedCount = 0;
+    const nextCustom = [...uploadedStickers];
+    let addedCount = 0;
+    let skippedCount = 0;
+
     for (const file of imageFiles) {
-      const isValid = await validateImageDimensions(file);
-      if (isValid) validFiles.push(file);
-      else rejectedCount += 1;
+      if (file.size > CUSTOM_STICKER_MAX_FILE_BYTES) {
+        skippedCount += 1;
+        continue;
+      }
+
+      const hasValidDimensions = await validateImageDimensions(file);
+      if (!hasValidDimensions) {
+        skippedCount += 1;
+        continue;
+      }
+
+      const dataUrl = await readFileAsDataUrl(file);
+
+      if (nextCustom.includes(dataUrl)) {
+        continue;
+      }
+
+      if (nextCustom.length >= CUSTOM_STICKER_MAX_COUNT) {
+        skippedCount += 1;
+        continue;
+      }
+
+      const projectedSize = estimateStickerDataSize([...nextCustom, dataUrl]);
+      if (projectedSize > CUSTOM_STICKER_MAX_TOTAL_BYTES) {
+        skippedCount += 1;
+        continue;
+      }
+
+      nextCustom.push(dataUrl);
+      addedCount += 1;
     }
 
-    const urls = validFiles.map((file) => URL.createObjectURL(file));
-    setUploadedStickers(urls);
+    setUploadedStickers(nextCustom);
 
-    if (validFiles.length > 0 && rejectedCount > 0) {
-      setStickerMessage(`Loaded ${validFiles.length} sticker(s). Skipped ${rejectedCount} file(s) over 512×512.`);
-    } else if (validFiles.length > 0) {
-      setStickerMessage(`Loaded ${validFiles.length} sticker(s).`);
+    if (addedCount > 0 && skippedCount > 0) {
+      setStickerMessage(
+        `Added ${addedCount} sticker(s). Skipped ${skippedCount}. Limits: ${CUSTOM_STICKER_MAX_COUNT} custom stickers, 512×512 max, 500 KB per image.`
+      );
+    } else if (addedCount > 0) {
+      setStickerMessage(`Added ${addedCount} custom sticker(s).`);
     } else {
-      setStickerMessage("No valid stickers found. Images must be 512×512 or smaller.");
+      setStickerMessage("No new stickers were added. Check file size, dimensions, or custom sticker limits.");
     }
 
     e.target.value = "";
+  }
+
+  function removeCustomSticker(src) {
+    setUploadedStickers((prev) => prev.filter((item) => item !== src));
+    setStickerMessage("Custom sticker removed.");
+  }
+
+  function resetCustomStickers() {
+    if (uploadedStickers.length === 0) return;
+    const confirmed = window.confirm("Remove all custom stickers and return to the default sticker pack?");
+    if (!confirmed) return;
+    setUploadedStickers([]);
+    setStickerMessage("Reset to the default sticker pack.");
   }
 
   async function handleImportFile(e) {
@@ -814,6 +883,7 @@ export default function App() {
         setTasks(imported.tasks);
         setDailyArchive(imported.dailyArchive);
         setStarCountManual(imported.starCountManual);
+        setUploadedStickers(imported.customStickers || []);
         setExpandedArchiveNotes({});
         window.alert("Backup imported. Your current data was replaced.");
       }
@@ -831,9 +901,11 @@ export default function App() {
         const mergedArchive = mergeArchives(dailyArchive, imported.dailyArchive);
         const currentManualForMerge = starCountManual ?? 0;
         const importedManualForMerge = imported.starCountManual ?? 0;
+        const mergedCustomStickers = Array.from(new Set([...(uploadedStickers || []), ...(imported.customStickers || [])])).slice(0, CUSTOM_STICKER_MAX_COUNT);
         setTasks(mergedTasks);
         setDailyArchive(mergedArchive);
         setStarCountManual(currentManualForMerge + importedManualForMerge);
+        setUploadedStickers(mergedCustomStickers);
         window.alert("Backup merged. Review your queue and archive for duplicates if the two datasets overlapped.");
       }
     } catch {
@@ -888,7 +960,10 @@ export default function App() {
         .filter((entry) => entry.list.length > 0)
     : archiveGroups.slice(0, 7);
 
-  const galleryStickers = stickers.map((src, index) => ({ id: `${src}-${index}`, src }));
+  const galleryStickers = [
+    ...defaultStickerPack.map((src, index) => ({ id: `built-${index}`, src, isCustom: false })),
+    ...uploadedStickers.map((src, index) => ({ id: `custom-${index}`, src, isCustom: true })),
+  ];
   const hasUploadedGalleryStickers = uploadedStickers.length > 0;
   const theme = getTheme(darkMode);
   const styles = getStyles(theme, isMobile, darkMode);
@@ -968,6 +1043,7 @@ export default function App() {
 
   return (
     <div style={styles.page}>
+      <div style={styles.bottomStarField} />
       {/* Existing JSX structure intentionally preserved for the 3-file split. */}
       {/* This keeps behavior stable before the next feature pass. */}
       {/* The render body below matches your current app, with helpers/styles moved out. */}
@@ -1017,7 +1093,89 @@ export default function App() {
               <div style={styles.headerButtons}>
                 <div style={{ position: "relative" }} ref={stickerPanelRef}>
                   <button className="pressable" onClick={toggleStickerPanel} style={{ ...(stickersEnabled ? styles.buttonPrimary : styles.button), ...styles.headerButton }}>✨ Stickers</button>
-                  {showStickerSettings && <div style={styles.stickerMenu}><div style={{ ...styles.row, justifyContent: "space-between", marginBottom: "10px" }}><span style={{ fontWeight: 700, color: theme.title }}>Sticker Settings</span><button className="pressable" onClick={() => setStickersEnabled(!stickersEnabled)} style={stickersEnabled ? styles.buttonPrimary : styles.button}>{stickersEnabled ? "On" : "Off"}</button></div><div style={styles.helperText}>Built-in stickers load automatically from <code>src/assets/stickers</code>.</div><div style={{ marginTop: "10px" }}><button className="pressable" style={{ ...styles.button, width: "100%" }} onClick={() => setShowStickerGallery(!showStickerGallery)}>{showStickerGallery ? `Hide Sticker Gallery (${galleryStickers.length})` : `Sticker Gallery (${galleryStickers.length})`}</button></div>{showStickerGallery && <div style={{ marginTop: "10px", animation: "galleryFadeIn 0.18s ease" }}><div style={styles.helperText}>Loaded stickers: {galleryStickers.length}. Hover for a gentle preview. Click or tap a sticker to expand it.</div>{!hasUploadedGalleryStickers && <div style={{ ...styles.helperText, marginTop: "6px" }}>Built-in</div>}<div style={styles.galleryGrid}>{galleryStickers.map((sticker) => { const isHovered = hoveredGallerySticker === sticker.id; return <div key={sticker.id} style={{ ...styles.galleryTile, boxShadow: isHovered ? darkMode ? "0 8px 18px rgba(59, 130, 246, 0.18)" : "0 8px 18px rgba(96, 165, 250, 0.2)" : darkMode ? "0 2px 8px rgba(2, 6, 23, 0.18)" : "0 2px 8px rgba(148, 163, 184, 0.08)", transform: isHovered ? "translateY(-2px)" : "translateY(0)" }} onMouseEnter={() => setHoveredGallerySticker(sticker.id)} onMouseLeave={() => setHoveredGallerySticker(null)} onClick={() => setExpandedGallerySticker(sticker)} onTouchStart={() => setExpandedGallerySticker(sticker)}><img src={sticker.src} alt="Sticker preview" style={{ ...styles.galleryThumb, transform: isHovered ? "scale(1.15)" : "scale(1)" }} /></div>; })}</div></div>}{stickersEnabled && <><div style={{ marginTop: "12px", ...styles.helperText }}>Use your own stickers! Choose a folder for convenience, or pick image files manually. Use PNG, JPEG, WEBP or GIF. Uploaded stickers must be 512×512 or smaller.</div><div style={{ display: "grid", gap: "8px", marginTop: "8px", minWidth: 0 }}><label style={styles.helperText}>Choose a folder:</label><input type="file" multiple webkitdirectory="" directory="" onChange={handleStickerFolder} style={{ minWidth: 0 }} /><label style={styles.helperText}>Or choose image files manually:</label><input type="file" multiple accept="image/*" onChange={handleStickerFolder} style={{ minWidth: 0 }} /></div>{stickerMessage && <div style={styles.stickerMessage}>{stickerMessage}</div>}</>}</div>}
+                  {showStickerSettings && (
+                    <div style={styles.stickerMenu}>
+                      <div style={{ ...styles.row, justifyContent: "space-between", marginBottom: "10px" }}>
+                        <span style={{ fontWeight: 700, color: theme.title }}>Sticker Manager</span>
+                        <button className="pressable" onClick={() => setStickersEnabled(!stickersEnabled)} style={stickersEnabled ? styles.buttonPrimary : styles.button}>
+                          {stickersEnabled ? "On" : "Off"}
+                        </button>
+                      </div>
+
+                      <div style={styles.helperText}>
+                        Built-in stickers: {defaultStickerPack.length}. Custom stickers: {uploadedStickers.length}.
+                      </div>
+
+                      <div style={styles.stickerManagerActions}>
+                        <button className="pressable" style={{ ...styles.button, width: "100%" }} onClick={() => setShowStickerGallery(!showStickerGallery)}>
+                          {showStickerGallery ? `Hide Sticker Gallery (${galleryStickers.length})` : `Sticker Gallery (${galleryStickers.length})`}
+                        </button>
+
+                        {stickersEnabled && (
+                          <>
+                            <input type="file" multiple accept="image/*" onChange={handleStickerUpload} style={styles.stickerFileInput} />
+                            <button className="pressable" style={{ ...styles.button, width: "100%" }} onClick={resetCustomStickers}>
+                              Reset to Default Pack
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {stickerMessage && <div style={styles.stickerMessage}>{stickerMessage}</div>}
+
+                      {showStickerGallery && (
+                        <div style={{ marginTop: "10px", animation: "galleryFadeIn 0.18s ease" }}>
+                          <div style={styles.helperText}>
+                            Tap a sticker to preview it. Custom stickers can be removed directly from the gallery.
+                          </div>
+                          <div style={styles.galleryGrid}>
+                            {galleryStickers.map((sticker) => {
+                              const isHovered = hoveredGallerySticker === sticker.id;
+                              return (
+                                <div
+                                  key={sticker.id}
+                                  style={{
+                                    ...styles.galleryTile,
+                                    boxShadow: isHovered
+                                      ? darkMode
+                                        ? "0 8px 18px rgba(59, 130, 246, 0.18)"
+                                        : "0 8px 18px rgba(96, 165, 250, 0.2)"
+                                      : darkMode
+                                        ? "0 2px 8px rgba(2, 6, 23, 0.18)"
+                                        : "0 2px 8px rgba(148, 163, 184, 0.08)",
+                                    transform: isHovered ? "translateY(-2px)" : "translateY(0)",
+                                  }}
+                                  onMouseEnter={() => setHoveredGallerySticker(sticker.id)}
+                                  onMouseLeave={() => setHoveredGallerySticker(null)}
+                                  onClick={() => setExpandedGallerySticker(sticker)}
+                                  onTouchStart={() => setExpandedGallerySticker(sticker)}
+                                >
+                                  {sticker.isCustom && (
+                                    <button
+                                      className="pressable"
+                                      style={styles.galleryDeleteButton}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeCustomSticker(sticker.src);
+                                      }}
+                                      title="Remove custom sticker"
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
+                                  <img
+                                    src={sticker.src}
+                                    alt="Sticker preview"
+                                    style={{ ...styles.galleryThumb, transform: isHovered ? "scale(1.15)" : "scale(1)" }}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <button className="pressable" onClick={() => setDarkMode((prev) => !prev)} style={{ ...(darkMode ? styles.buttonPrimary : styles.button), ...styles.headerButton }} title="Toggle dark mode">{darkMode ? "🌙 Dark" : "☀️ Light"}</button>
               </div>
@@ -1037,7 +1195,7 @@ export default function App() {
         </div>
 
         <div style={{ marginBottom: "12px" }}><input style={styles.input} placeholder="Search active tasks..." value={queueSearch} onChange={(e) => setQueueSearch(e.target.value)} /></div>
-        <div style={styles.card}><div style={styles.cardStars}>✦ ✦</div><div style={{ display: "grid", gap: "12px" }}><input style={styles.input} maxLength={100} placeholder="Task name" value={taskName} onChange={(e) => setTaskName(e.target.value)} /><textarea style={styles.textarea} placeholder="Details / notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} /><div style={{ display: "grid", gap: "8px" }}><div style={styles.muted}>Checklist (optional)</div>{newTaskChecklist.length > 0 && (<div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.map((item) => (<div key={item.id} style={styles.checklistEditRow}><input style={{ ...styles.input, minWidth: 0 }} placeholder="Checklist item" value={item.text} onChange={(e) => updateNewTaskChecklistItem(item.id, e.target.value)} /><button className="pressable" style={styles.smallButton} onClick={() => deleteNewTaskChecklistItem(item.id)}>Delete</button></div>))}</div>)}<button className="pressable" style={styles.button} onClick={addNewTaskChecklistItem}>+ Add Checklist Item</button></div><button className="pressable" style={styles.buttonPrimary} onClick={addTask}>Add Task</button></div></div>
+        <div style={styles.card}><div style={styles.cardStars}>✦ ✦ ✦</div><div style={{ display: "grid", gap: "12px" }}><input style={styles.input} maxLength={100} placeholder="Task name" value={taskName} onChange={(e) => setTaskName(e.target.value)} /><textarea style={styles.textarea} placeholder="Details / notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} /><div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.length > 0 && (<div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.map((item) => (<div key={item.id} style={styles.checklistEditRow}><input style={{ ...styles.input, minWidth: 0 }} placeholder="Checklist item" value={item.text} onChange={(e) => updateNewTaskChecklistItem(item.id, e.target.value)} /><button className="pressable" style={styles.smallButton} onClick={() => deleteNewTaskChecklistItem(item.id)}>{isMobile ? "❌" : "❌ Delete"}</button></div>))}</div>)}<button className="pressable" style={styles.button} onClick={addNewTaskChecklistItem}>+ Add Checklist Item (optional)</button></div><button className="pressable" style={styles.buttonPrimary} onClick={addTask}>Add Task</button></div></div>
 
         <div>
           {sortedTasks.map((task, index) => {
@@ -1069,7 +1227,7 @@ export default function App() {
                     : styles.card.boxShadow,
                 }}
               >
-                <div style={styles.cardStars}>✦</div>
+                <div style={styles.cardStars}>✦ ✦ ✦</div>
 
                 <div style={styles.taskHeaderRow}>
                   <div style={styles.taskTitleRow}>
@@ -1126,7 +1284,7 @@ export default function App() {
                       onClick={() => startEdit(task)}
                       style={{ ...styles.smallButton, ...styles.taskActionButton }}
                     >
-                      {isMobile ? "✏️" : "✏️ Edit"}
+                      Edit
                     </button>
 
                     <button
@@ -1134,7 +1292,7 @@ export default function App() {
                       onClick={() => deleteTask(task.id)}
                       style={{ ...styles.smallButton, ...styles.taskActionButton }}
                     >
-                      {isMobile ? "❌" : "❌ Delete"}
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -1382,13 +1540,22 @@ export default function App() {
                                   )}
                                 </div>
 
-                                <button
-                                  className="pressable"
-                                  style={styles.archiveUndoButton}
-                                  onClick={() => undoFromArchive(task, entry.date)}
-                                >
-                                  Undo
-                                </button>
+                                <div style={styles.archiveActionsRow}>
+                                  <button
+                                    className="pressable"
+                                    style={styles.archiveUndoButton}
+                                    onClick={() => undoFromArchive(task, entry.date)}
+                                  >
+                                    Undo
+                                  </button>
+                                  <button
+                                    className="pressable"
+                                    style={styles.archiveDeleteButton}
+                                    onClick={() => deleteArchivedTask(task, entry.date)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
                               </div>
 
                               {hasDetails && detailsOpen && (
