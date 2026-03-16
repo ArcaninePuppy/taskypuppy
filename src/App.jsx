@@ -1042,7 +1042,7 @@ export default function App() {
   );
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page}><div style={styles.bottomStarField} /><div style={styles.bottomStarFieldSecondary} />
       {/* Existing JSX structure intentionally preserved for the 3-file split. */}
       {/* This keeps behavior stable before the next feature pass. */}
       {/* The render body below matches your current app, with helpers/styles moved out. */}
@@ -1084,8 +1084,521 @@ export default function App() {
         @media (max-width: 640px) { input[type="date"] { min-width: 0; width: 100%; max-width: 100%; min-height: 44px; box-sizing: border-box; display: block; -webkit-appearance: none; appearance: none; font-size: 16px; line-height: 1.2; } .pressable:hover { transform: none; box-shadow: none; } }
       `}</style>
 
-      <div style={styles.wrapper}><div style={styles.bottomStarField} /><div style={styles.bottomStarFieldSecondary} />
-        <!-- remainder unchanged -->
+      <div style={styles.wrapper}>
+        <input ref={importInputRef} type="file" accept="application/json,.json" onChange={handleImportFile} style={{ display: "none" }} />
+        <div style={styles.topBar}>
+          <div style={styles.headerMain}>
+            <div style={styles.mascotWrap}>{titleSticker ? <img src={titleSticker} alt="Tasky Puppy mascot" style={{ ...styles.titleSticker, animation: headerCelebrate ? "tpMascotBounce 0.75s ease" : "mascotIdle 5s ease-in-out infinite" }} onClick={handleTitleStickerClick} title="Click for a little reward boost. Works when Stickers are turned on." /> : <div style={{ ...styles.titleSticker, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "72px", animation: headerCelebrate ? "tpMascotBounce 0.75s ease" : "mascotIdle 5s ease-in-out infinite" }} onClick={handleTitleStickerClick} title="Click for a little reward boost. Works when Stickers are turned on.">🐶</div>}</div>
+            {!isMobile && desktopTitleBlock}
+            <div style={styles.headerRight}>
+              <div style={styles.headerButtons}>
+                <div style={{ position: "relative" }} ref={stickerPanelRef}>
+                  <button className="pressable" onClick={toggleStickerPanel} style={{ ...(stickersEnabled ? styles.buttonPrimary : styles.button), ...styles.headerButton }}>✨ Stickers</button>
+                  {showStickerSettings && (
+                    <div style={styles.stickerMenu}>
+                      <div style={{ ...styles.row, justifyContent: "space-between", marginBottom: "10px" }}>
+                        <span style={{ fontWeight: 700, color: theme.title }}>Sticker Manager</span>
+                        <button className="pressable" onClick={() => setStickersEnabled(!stickersEnabled)} style={stickersEnabled ? styles.buttonPrimary : styles.button}>
+                          {stickersEnabled ? "On" : "Off"}
+                        </button>
+                      </div>
+
+                      <div style={styles.helperText}>
+                        Built-in stickers: {defaultStickerPack.length}. Custom stickers: {uploadedStickers.length}.
+                      </div>
+
+                      <div style={styles.stickerManagerActions}>
+                        <button className="pressable" style={{ ...styles.button, width: "100%" }} onClick={() => setShowStickerGallery(!showStickerGallery)}>
+                          {showStickerGallery ? `Hide Sticker Gallery (${galleryStickers.length})` : `Sticker Gallery (${galleryStickers.length})`}
+                        </button>
+
+                        {stickersEnabled && (
+                          <>
+                            <input type="file" multiple accept="image/*" onChange={handleStickerUpload} style={styles.stickerFileInput} />
+                            <button className="pressable" style={{ ...styles.button, width: "100%" }} onClick={resetCustomStickers}>
+                              Reset to Default Pack
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {stickerMessage && <div style={styles.stickerMessage}>{stickerMessage}</div>}
+
+                      {showStickerGallery && (
+                        <div style={{ marginTop: "10px", animation: "galleryFadeIn 0.18s ease" }}>
+                          <div style={styles.helperText}>
+                            Tap a sticker to preview it. Custom stickers can be removed directly from the gallery.
+                          </div>
+                          <div style={styles.galleryGrid}>
+                            {galleryStickers.map((sticker) => {
+                              const isHovered = hoveredGallerySticker === sticker.id;
+                              return (
+                                <div
+                                  key={sticker.id}
+                                  style={{
+                                    ...styles.galleryTile,
+                                    boxShadow: isHovered
+                                      ? darkMode
+                                        ? "0 8px 18px rgba(59, 130, 246, 0.18)"
+                                        : "0 8px 18px rgba(96, 165, 250, 0.2)"
+                                      : darkMode
+                                        ? "0 2px 8px rgba(2, 6, 23, 0.18)"
+                                        : "0 2px 8px rgba(148, 163, 184, 0.08)",
+                                    transform: isHovered ? "translateY(-2px)" : "translateY(0)",
+                                  }}
+                                  onMouseEnter={() => setHoveredGallerySticker(sticker.id)}
+                                  onMouseLeave={() => setHoveredGallerySticker(null)}
+                                  onClick={() => setExpandedGallerySticker(sticker)}
+                                  onTouchStart={() => setExpandedGallerySticker(sticker)}
+                                >
+                                  {sticker.isCustom && (
+                                    <button
+                                      className="pressable"
+                                      style={styles.galleryDeleteButton}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeCustomSticker(sticker.src);
+                                      }}
+                                      title="Remove custom sticker"
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
+                                  <img
+                                    src={sticker.src}
+                                    alt="Sticker preview"
+                                    style={{ ...styles.galleryThumb, transform: isHovered ? "scale(1.15)" : "scale(1)" }}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <button className="pressable" onClick={() => setDarkMode((prev) => !prev)} style={{ ...(darkMode ? styles.buttonPrimary : styles.button), ...styles.headerButton }} title="Toggle dark mode">{darkMode ? "🌙 Dark" : "☀️ Light"}</button>
+              </div>
+            </div>
+          </div>
+          {isMobile && desktopTitleBlock}
+        </div>
+
+        <div style={styles.controlsRow}>
+          <button className="pressable" style={autoSort ? styles.buttonPrimary : styles.button} onClick={() => setAutoSort(!autoSort)}>Auto Sort</button>
+          <button className="pressable" style={nextTaskMode ? styles.buttonPrimary : styles.button} onClick={() => setNextTaskMode(!nextTaskMode)}>Next Task</button>
+          <div style={{ position: "relative" }} ref={dataPanelRef}>
+            <button className="pressable" style={showDataInfo ? styles.buttonPrimary : styles.button} onClick={toggleDataPanel}>Your Data</button>
+            {showDataInfo && isMobile && <div style={styles.overlay} onClick={() => setShowDataInfo(false)} />}
+            {showDataInfo && <div style={styles.infoPanel}><div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>Your Data</div><div style={styles.panelActionRow}><button className="pressable" style={styles.panelActionButton} onClick={exportJSON}>Export JSON</button><button className="pressable" style={styles.panelActionButton} onClick={() => importInputRef.current?.click()}>Import JSON</button><button className="pressable" style={styles.panelActionButton} onClick={restoreRecoveryBackup}>Emergency Restore</button></div><div style={styles.footerText}>Your personal data in this app is intended to be cloud-free. Please make regular copies! Or else!</div><div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}><button className="pressable" style={styles.detailsToggle} onClick={() => setShowDataDetails((prev) => !prev)}>{showDataDetails ? "Hide Details" : "Show Details"}</button></div>{showDataDetails && <div style={styles.infoPanelScrollArea}><div style={{ ...styles.footerText, marginTop: "10px" }}>On desktop, your data is stored locally in this browser on this device. On mobile, it is also generally stored locally in the browser, but mobile browsers can be less predictable if app or browser data is cleared, the browser is reinstalled, private browsing is used, or the device changes.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>This means your queue, archive, and progress do not automatically sync between devices. Export backups regularly if you want to preserve your data or move it somewhere else.</div><div style={{ ...styles.footerText, marginTop: "8px" }}><strong>Emergency Restore</strong> is the app’s once-per-day local “oops” backup. The first meaningful change you make each day saves a recovery snapshot before that change, and that snapshot stays put for the rest of the day.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>That makes <strong>Emergency Restore</strong> best for undoing a messy moment from today, using a backup saved locally in this browser on this device.</div><div style={{ ...styles.footerText, marginTop: "8px" }}><strong>Import JSON</strong> uses a backup file you picked yourself. It is best for restoring an older save, moving your data to another device, or merging progress from somewhere else.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>In short: <strong>Emergency Restore</strong> is your local daily “oops” button, while <strong>Import JSON</strong> is your long-term moving-and-backup tool.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>If you have this app open in multiple tabs or windows on the same browser and same local address, changes should now update across them automatically.</div><div style={styles.dangerSection}><div style={styles.dangerText}><strong>Advanced action:</strong> Need a full fresh start? This deletes all local Tasky Puppy data from this browser on this device, including your queue, archive, stars, emergency restore backup, and interface preferences.</div><button className="pressable" style={styles.dangerButton} onClick={deleteAllData}>Delete All Data</button></div></div>}</div>}
+          </div>
+        </div>
+
+        <div style={{ marginBottom: "12px" }}><input style={styles.input} placeholder="Search active tasks..." value={queueSearch} onChange={(e) => setQueueSearch(e.target.value)} /></div>
+        <div style={styles.card}><div style={styles.cardStars}>✦ ✦ ✦</div><div style={{ display: "grid", gap: "12px" }}><input style={styles.input} maxLength={100} placeholder="Task name" value={taskName} onChange={(e) => setTaskName(e.target.value)} /><textarea style={styles.textarea} placeholder="Details / notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} /><div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.length > 0 && (<div style={{ display: "grid", gap: "8px" }}>{newTaskChecklist.map((item) => (<div key={item.id} style={styles.checklistEditRow}><input style={{ ...styles.input, minWidth: 0 }} placeholder="Checklist item" value={item.text} onChange={(e) => updateNewTaskChecklistItem(item.id, e.target.value)} /><button className="pressable" style={styles.smallButton} onClick={() => deleteNewTaskChecklistItem(item.id)}>{isMobile ? "❌" : "❌ Delete"}</button></div>))}</div>)}<button className="pressable" style={styles.button} onClick={addNewTaskChecklistItem}>+ Add Checklist Item (optional)</button></div><button className="pressable" style={styles.buttonPrimary} onClick={addTask}>Add Task</button></div></div>
+
+        <div>
+          {sortedTasks.map((task, index) => {
+            const isNextTask = nextTaskMode && index === 0;
+            const detailsOpen = expandedDetails[task.id];
+            const hasDetails = taskHasDetails(task);
+
+            return (
+              <div
+                key={task.id}
+                draggable={!autoSort}
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleDrop(index)}
+                style={{
+                  ...styles.card,
+                  ...priorityStyle(task),
+                  cursor: autoSort ? "default" : "move",
+                  animation: completingIds[task.id] ? "taskCompleteOut 0.45s ease forwards" : "none",
+                  background: isNextTask
+                    ? darkMode
+                      ? "linear-gradient(180deg, #2f3650 0%, #394260 100%)"
+                      : "linear-gradient(180deg, #fffbea 0%, #fffbeb 100%)"
+                    : styles.card.background,
+                  boxShadow: isNextTask
+                    ? darkMode
+                      ? "0 0 0 2px #5b7aa5, 0 8px 24px rgba(15, 23, 42, 0.28)"
+                      : "0 0 0 2px #bfdbfe, 0 8px 24px rgba(96, 165, 250, 0.18)"
+                    : styles.card.boxShadow,
+                }}
+              >
+                <div style={styles.cardStars}>✦ ✦ ✦</div>
+
+                <div style={styles.taskHeaderRow}>
+                  <div style={styles.taskTitleRow}>
+                    <div style={{ display: "grid", gap: "4px", minWidth: 0, flex: 1 }}>
+                      {isNextTask && (
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            color: darkMode ? "#9ec9ff" : "#2563eb",
+                          }}
+                        >
+                          Next Up
+                        </div>
+                      )}
+                      <div style={{ ...styles.taskTitleRow, alignItems: "center" }}>
+                        <p style={styles.taskTitleText} title={task.name}>
+                          {task.name}
+                        </p>
+                        <span style={styles.taskMetaText}>
+                          {formatCompactDateTime(task.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={styles.taskActionRow}>
+                    <button
+                      className="pressable"
+                      onClick={() => toggleFocus(task.id)}
+                      style={{ ...focusToggleStyle(task.focus), ...styles.taskActionButton }}
+                    >
+                      {isMobile ? "⭐" : "⭐ Focus"}
+                    </button>
+
+                    <button
+                      className="pressable"
+                      onClick={() => toggleCritical(task.id)}
+                      style={{ ...urgentToggleStyle(task.critical), ...styles.taskActionButton }}
+                    >
+                      {isMobile ? "⚠️" : "⚠️ Urgent"}
+                    </button>
+
+                    <button
+                      className="pressable"
+                      onClick={(e) => completeTask(task, e)}
+                      style={{ ...styles.smallButton, ...styles.taskActionButton }}
+                    >
+                      {isMobile ? "✅" : "✅ Done"}
+                    </button>
+
+                    <button
+                      className="pressable"
+                      onClick={() => startEdit(task)}
+                      style={{ ...styles.smallButton, ...styles.taskActionButton }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="pressable"
+                      onClick={() => deleteTask(task.id)}
+                      style={{ ...styles.smallButton, ...styles.taskActionButton }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                {editingId === task.id ? (
+                  <div style={{ marginTop: "10px", display: "grid", gap: "10px" }}>
+                    <input
+                      style={styles.input}
+                      maxLength={100}
+                      value={editingTaskName}
+                      onChange={(e) => setEditingTaskName(e.target.value)}
+                      placeholder="Task title"
+                    />
+
+                    <div style={{ ...styles.noteText, marginTop: 0 }}>
+                      <div style={{ fontWeight: 800, marginBottom: "8px", color: theme.title }}>
+                        Details
+                      </div>
+
+                      <textarea
+                        style={{ ...styles.textarea, minHeight: "96px" }}
+                        value={editingNotes}
+                        onChange={(e) => setEditingNotes(e.target.value)}
+                        placeholder="Notes"
+                      />
+
+                      <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
+                        {editingChecklist.map((item) => (
+                          <div key={item.id} style={styles.checklistRow}>
+                            <input
+                              type="checkbox"
+                              checked={item.completed}
+                              onChange={() =>
+                                setEditingChecklist((prev) =>
+                                  prev.map((entry) =>
+                                    entry.id === item.id
+                                      ? { ...entry, completed: !entry.completed }
+                                      : entry
+                                  )
+                                )
+                              }
+                            />
+                            <input
+                              style={{ ...styles.input, ...styles.checklistTextInput }}
+                              value={item.text}
+                              onChange={(e) => updateEditingChecklistItem(item.id, e.target.value)}
+                              placeholder="Checklist item"
+                            />
+                            <button
+                              className="pressable"
+                              style={styles.smallButton}
+                              onClick={() => deleteEditingChecklistItem(item.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ))}
+
+                        <button
+                          className="pressable"
+                          style={styles.button}
+                          onClick={addChecklistItemToEditor}
+                        >
+                          + Add Checklist Item
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: isMobile ? "center" : "flex-start", gap: "8px", flexWrap: "wrap" }}>
+                      <button
+                        className="pressable"
+                        style={{ ...styles.buttonPrimary, width: isMobile ? "100%" : "fit-content" }}
+                        onClick={() => saveTaskChanges(task.id)}
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        className="pressable"
+                        style={{ ...styles.button, width: isMobile ? "100%" : "fit-content" }}
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditingTaskName("");
+                          setEditingNotes("");
+                          setEditingChecklist([]);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : hasDetails ? (
+                  <div style={{ marginTop: "10px" }}>
+                    <button
+                      className="pressable"
+                      style={styles.detailToggleButton}
+                      onClick={() => toggleDetails(task.id)}
+                    >
+                      <span>{detailsOpen ? "▾ Hide Details" : "▸ Details"}</span>
+                      <span style={{ fontSize: "12px", color: theme.muted }}>
+                        {(task.checklist || []).length > 0
+                          ? `${(task.checklist || []).filter((item) => item.completed).length}/${(task.checklist || []).length} checked`
+                          : task.notesUpdatedAt
+                            ? "updated"
+                            : "open"}
+                      </span>
+                    </button>
+
+                    <div
+                      style={{
+                        ...styles.detailsPanel,
+                        maxHeight: detailsOpen ? "560px" : "0px",
+                        opacity: detailsOpen ? 1 : 0,
+                        transform: detailsOpen ? "translateY(0)" : "translateY(-4px)",
+                        transition: "max-height 240ms ease, opacity 180ms ease, transform 180ms ease",
+                      }}
+                    >
+                      <div style={{ ...styles.noteText, marginTop: "8px", display: "grid", gap: "10px" }}>
+                        {task.notes && <div>{task.notes}</div>}
+
+                        {(task.checklist || []).length > 0 && (
+                          <div style={{ display: "grid", gap: "8px" }}>
+                            {task.checklist.map((item) => (
+                              <label key={item.id} style={styles.checklistRow}>
+                                <input
+                                  type="checkbox"
+                                  checked={item.completed}
+                                  onChange={() => toggleChecklistItem(task.id, item.id)}
+                                />
+                                <span
+                                  style={{
+                                    ...styles.checklistItemText,
+                                    textDecoration: item.completed ? "line-through" : "none",
+                                    opacity: item.completed ? 0.72 : 1,
+                                  }}
+                                >
+                                  {item.text || "Untitled checklist item"}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={styles.card}>
+          <div style={styles.cardStars}>✦ ✦ ✦</div>
+          <button
+            className="pressable"
+            style={{ ...styles.button, marginBottom: showArchive ? "12px" : 0 }}
+            onClick={() => setShowArchive(!showArchive)}
+          >
+            {showArchive ? "▾ Daily Archive" : "▸ Daily Archive"}
+          </button>
+
+          {showArchive && (
+            <>
+              <div style={{ ...styles.helperText, marginBottom: "12px" }}>
+                Showing your 7 most recent archive days by default. Search or use a date filter to
+                view older history.
+              </div>
+
+              <div style={{ display: "grid", gap: "12px", marginBottom: "12px", minWidth: 0 }}>
+                <input
+                  style={styles.input}
+                  placeholder="Search archive..."
+                  value={archiveSearch}
+                  onChange={(e) => setArchiveSearch(e.target.value)}
+                />
+
+                <div style={styles.archiveFilterGrid}>
+                  <div style={styles.archiveFilterCell}>
+                    <div style={{ ...styles.muted, marginBottom: "4px" }}>Start Date</div>
+                    <input
+                      type="date"
+                      style={styles.archiveDateInput}
+                      value={archiveStartDate}
+                      onChange={(e) => setArchiveStartDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div style={styles.archiveFilterCell}>
+                    <div style={{ ...styles.muted, marginBottom: "4px" }}>End Date</div>
+                    <input
+                      type="date"
+                      style={styles.archiveDateInput}
+                      value={archiveEndDate}
+                      onChange={(e) => setArchiveEndDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div style={styles.archiveFilterAction}>
+                    <button
+                      className="pressable"
+                      style={{
+                        ...styles.button,
+                        ...styles.fullWidthButton,
+                        minHeight: styles.archiveDateInput.minHeight,
+                        alignSelf: isMobile ? "stretch" : "auto",
+                      }}
+                      onClick={() => {
+                        setArchiveStartDate("");
+                        setArchiveEndDate("");
+                      }}
+                    >
+                      Clear Date Filter
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gap: "16px", minWidth: 0 }}>
+                {archiveEntries.map((entry) => (
+                  <div key={entry.date}>
+                    <div style={{ fontWeight: 700, color: theme.muted, marginBottom: "6px" }}>
+                      {entry.date}
+                    </div>
+
+                    <div style={{ display: "grid", gap: "8px", paddingLeft: "8px", minWidth: 0 }}>
+                      {entry.list.map((task) => {
+                        const archiveNoteKey = `${entry.date}-${task.id}`;
+                        const detailsOpen = expandedArchiveNotes[archiveNoteKey];
+                        const hasDetails = taskHasDetails(task);
+
+                        return (
+                          <div key={task.id} style={styles.archiveTaskRow}>
+                            <div style={styles.archiveCompactCard}>
+                              <div style={styles.archiveCardHeader}>
+                                <div style={styles.archiveTitleRow}>
+                                  <span style={styles.archiveTaskName}>{task.name}</span>
+
+                                  {hasDetails && (
+                                    <button
+                                      className="pressable"
+                                      style={styles.archiveInlineNoteButton}
+                                      onClick={() => toggleArchiveNotes(archiveNoteKey)}
+                                    >
+                                      {detailsOpen ? "Hide details" : "Details"}
+                                    </button>
+                                  )}
+                                </div>
+
+                                <div style={styles.archiveActionsRow}>
+                                  <button
+                                    className="pressable"
+                                    style={styles.archiveUndoButton}
+                                    onClick={() => undoFromArchive(task, entry.date)}
+                                  >
+                                    Undo
+                                  </button>
+                                  <button
+                                    className="pressable"
+                                    style={styles.archiveDeleteButton}
+                                    onClick={() => deleteArchivedTask(task, entry.date)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+
+                              {hasDetails && detailsOpen && (
+                                <div style={{ ...styles.noteText, marginTop: 0, display: "grid", gap: "8px" }}>
+                                  {task.notes && <div>{task.notes}</div>}
+                                  {(task.checklist || []).length > 0 && (
+                                    <div style={{ display: "grid", gap: "6px" }}>
+                                      {task.checklist.map((item) => (
+                                        <div key={item.id} style={styles.checklistRow}>
+                                          <input type="checkbox" checked={item.completed} readOnly />
+                                          <span
+                                            style={{
+                                              ...styles.checklistItemText,
+                                              textDecoration: item.completed ? "line-through" : "none",
+                                              opacity: item.completed ? 0.72 : 1,
+                                            }}
+                                          >
+                                            {item.text || "Untitled checklist item"}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+
+                {archiveEntries.length === 0 && (
+                  <div style={styles.helperText}>No archive items match the current view.</div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div style={styles.footerBar}><div style={styles.footerField}><span style={styles.footerBarText}>Just a little animal guy on the internet. This is what I think a task tracker should be. I promise all choices were made with intention!</span><div style={styles.footerLinkRow}><a href="https://twitter.com/dogbutwithfire" target="_blank" rel="noreferrer" style={styles.footerBarLink}>🐦 @dogbutwithfire</a><span style={styles.footerDivider}>•</span><a href="https://t.me/PlushArcanine" target="_blank" rel="noreferrer" style={styles.footerBarLink}>✈️ @PlushArcanine</a></div></div></div>
       </div>
     </div>
   );

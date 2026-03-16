@@ -37,8 +37,6 @@ export function getTheme(darkMode) {
         urgentActiveBg: "linear-gradient(180deg, #ffb072 0%, #fb923c 100%)",
         urgentActiveBorder: "#f97316",
         urgentActiveText: "#1f2937",
-        starFieldBg: "#30356f",
-        starFieldStar: "rgba(255,255,255,0.82)",
       }
     : {
         pageBg: "linear-gradient(180deg, #eef6ff 0%, #f8fbff 35%, #f4f8fc 100%)",
@@ -73,38 +71,7 @@ export function getTheme(darkMode) {
         urgentActiveBg: "linear-gradient(180deg, #fdba74 0%, #fb923c 100%)",
         urgentActiveBorder: "#ea580c",
         urgentActiveText: "#1f2937",
-        starFieldBg: "#dfe9ff",
-        starFieldStar: "rgba(255,255,255,0.92)",
       };
-}
-
-function createStarPattern(fillColor) {
-  const starPath = "M90 63.5L94.9 78.6C95.6 80.8 97.6 82.2 99.9 82.2H115.7C120.8 82.2 122.9 88.8 118.8 91.8L106 101.1C104.1 102.5 103.3 104.9 104 107.1L108.8 122.1C110.4 127 104.8 131 100.7 128L87.9 118.8C86 117.4 83.4 117.4 81.5 118.8L68.7 128C64.6 131 59 127 60.6 122.1L65.4 107.1C66.1 104.9 65.3 102.5 63.4 101.1L50.6 91.8C46.5 88.8 48.6 82.2 53.7 82.2H69.5C71.8 82.2 73.8 80.8 74.5 78.6L79.4 63.5C81 58.6 88 58.6 89.6 63.5Z";
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-    <g transform="translate(12 14) scale(0.11) rotate(-18 90 90)">
-      <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
-    </g>
-    <g transform="translate(102 104) scale(0.07) rotate(24 90 90)">
-      <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
-    </g>
-  </svg>`;
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-}
-
-function createTinyStarPattern(fillColor) {
-  const starPath = "M90 63.5L94.9 78.6C95.6 80.8 97.6 82.2 99.9 82.2H115.7C120.8 82.2 122.9 88.8 118.8 91.8L106 101.1C104.1 102.5 103.3 104.9 104 107.1L108.8 122.1C110.4 127 104.8 131 100.7 128L87.9 118.8C86 117.4 83.4 117.4 81.5 118.8L68.7 128C64.6 131 59 127 60.6 122.1L65.4 107.1C66.1 104.9 65.3 102.5 63.4 101.1L50.6 91.8C46.5 88.8 48.6 82.2 53.7 82.2H69.5C71.8 82.2 73.8 80.8 74.5 78.6L79.4 63.5C81 58.6 88 58.6 89.6 63.5Z";
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220">
-    <g transform="translate(28 38) scale(0.05) rotate(14 90 90)">
-      <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
-    </g>
-    <g transform="translate(142 28) scale(0.04) rotate(-27 90 90)">
-      <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
-    </g>
-    <g transform="translate(92 148) scale(0.05) rotate(33 90 90)">
-      <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
-    </g>
-  </svg>`;
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
 export function getStyles(theme, isMobile, darkMode) {
@@ -119,46 +86,7 @@ export function getStyles(theme, isMobile, darkMode) {
       color: theme.text,
       boxSizing: "border-box",
     },
-    wrapper: { width: "100%", maxWidth: "1020px", position: "relative", minWidth: 0, zIndex: 1 },
-    bottomStarField: {
-      position: "absolute",
-      left: isMobile ? "-12px" : "-24px",
-      right: isMobile ? "-12px" : "-24px",
-      bottom: 0,
-      width: isMobile ? "calc(100% + 24px)" : "calc(100% + 48px)",
-      height: isMobile ? "38vh" : "34vh",
-      pointerEvents: "none",
-      zIndex: 0,
-      backgroundColor: theme.starFieldBg,
-      backgroundImage: createStarPattern(theme.starFieldStar),
-      backgroundRepeat: "repeat",
-      backgroundSize: isMobile ? "112px 112px" : "126px 126px",
-      backgroundPosition: "center bottom",
-      opacity: darkMode ? 0.12 : 0.18,
-      overflow: "hidden",
-      animation: "starDriftPrimary 95s linear infinite",
-      WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)",
-      maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)"
-    },
-    bottomStarFieldSecondary: {
-      position: "absolute",
-      left: isMobile ? "-12px" : "-24px",
-      right: isMobile ? "-12px" : "-24px",
-      bottom: 0,
-      width: isMobile ? "calc(100% + 24px)" : "calc(100% + 48px)",
-      height: isMobile ? "38vh" : "34vh",
-      pointerEvents: "none",
-      zIndex: 0,
-      backgroundImage: createTinyStarPattern(theme.starFieldStar),
-      backgroundRepeat: "repeat",
-      backgroundSize: isMobile ? "146px 146px" : "168px 168px",
-      backgroundPosition: "18px bottom",
-      opacity: darkMode ? 0.07 : 0.1,
-      overflow: "hidden",
-      animation: "starDriftSecondary 125s linear infinite",
-      WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)",
-      maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)"
-    },
+    wrapper: { width: "100%", maxWidth: "1020px", position: "relative", minWidth: 0 },
     row: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", minWidth: 0 },
     topBar: { display: "grid", gap: isMobile ? "10px" : "12px", marginBottom: isMobile ? "16px" : "18px" },
     headerMain: isMobile
@@ -218,11 +146,8 @@ export function getStyles(theme, isMobile, darkMode) {
     archiveTaskRow: { display: "grid", gap: "8px", minWidth: 0 },
     helperText: { fontSize: "12px", color: theme.muted, lineHeight: 1.45, overflowWrap: "anywhere" },
     galleryGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(74px, 1fr))", gap: "10px", marginTop: "10px" },
-    galleryTile: { borderRadius: "14px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, padding: "8px", display: "grid", gap: "6px", justifyItems: "center", transition: "transform 0.18s ease, box-shadow 0.18s ease", minHeight: "84px", position: "relative" },
+    galleryTile: { borderRadius: "14px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, padding: "8px", display: "grid", gap: "6px", justifyItems: "center", transition: "transform 0.18s ease, box-shadow 0.18s ease", minHeight: "84px" },
     galleryThumb: { width: "56px", height: "56px", objectFit: "contain", transition: "transform 0.18s ease", pointerEvents: "auto", userSelect: "none" },
-    galleryDeleteButton: { position: "absolute", top: "6px", right: "6px", minWidth: "28px", minHeight: "28px", width: "28px", height: "28px", borderRadius: "999px", border: `1px solid ${theme.dangerBorder}`, background: darkMode ? "rgba(81, 46, 53, 0.95)" : "rgba(255, 240, 242, 0.98)", color: theme.dangerText, cursor: "pointer", fontSize: "12px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" },
-    stickerManagerActions: { display: "grid", gap: "8px", marginTop: "10px" },
-    stickerFileInput: { width: "100%", fontSize: "12px", color: theme.muted },
     galleryExpandedOverlay: { position: "fixed", inset: 0, background: darkMode ? "rgba(2, 6, 23, 0.62)" : "rgba(15, 23, 42, 0.38)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9998, padding: "24px" },
     galleryExpandedCard: { background: theme.cardBgSoft, borderRadius: "20px", border: `1px solid ${theme.border}`, boxShadow: darkMode ? "0 20px 50px rgba(2, 6, 23, 0.45)" : "0 20px 50px rgba(15, 23, 42, 0.2)", padding: "18px", maxWidth: "min(92vw, 560px)", maxHeight: "90vh", display: "grid", gap: "10px", justifyItems: "center" },
     galleryExpandedImage: { maxWidth: "min(80vw, 512px)", maxHeight: "70vh", objectFit: "contain" },
@@ -234,8 +159,7 @@ export function getStyles(theme, isMobile, darkMode) {
     panelActionRow: { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))", gap: "8px", marginBottom: "12px", width: "100%", minWidth: 0 },
     panelActionButton: { padding: "10px 8px", borderRadius: "12px", border: `1px solid ${theme.buttonBorder}`, background: theme.buttonBg, color: theme.buttonText, cursor: "pointer", fontSize: "12px", fontFamily: BODY_FONT, fontWeight: 700, whiteSpace: "normal", textAlign: "center", lineHeight: 1.15, overflowWrap: "anywhere", boxSizing: "border-box", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: "100%", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
     detailsToggle: { padding: "8px 10px", minHeight: "44px", borderRadius: "10px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, color: theme.buttonText, cursor: "pointer", fontSize: "13px", fontFamily: BODY_FONT, fontWeight: 700, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation", display: "inline-flex", alignItems: "center", justifyContent: "center" },
-    footerBar: { marginTop: "18px", padding: "10px 0 0", borderTop: `1px solid ${theme.footerBorder}`, display: "grid", gap: "6px", justifyItems: "center", color: theme.muted, fontSize: "12px", position: "relative", zIndex: 1 },
-    footerField: { width: "100%", background: theme.cardBg, border: `1px solid ${theme.border}`, borderRadius: "16px", padding: isMobile ? "12px" : "14px", boxShadow: darkMode ? "0 10px 24px rgba(2, 6, 23, 0.18)" : "0 8px 20px rgba(148, 163, 184, 0.12)", display: "grid", gap: "8px", justifyItems: "center" },
+    footerBar: { marginTop: "18px", padding: "10px 14px", borderTop: `1px solid ${theme.footerBorder}`, display: "grid", gap: "6px", justifyItems: "center", color: theme.muted, fontSize: "12px" },
     footerBarText: { color: theme.muted, fontSize: "12px", lineHeight: 1.5, textAlign: "center" },
     footerLinkRow: { display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", justifyContent: "center" },
     footerBarLink: { color: darkMode ? "#9ec9ff" : "#2563eb", textDecoration: "none", fontWeight: 700, fontSize: "12px" },
@@ -251,8 +175,6 @@ export function getStyles(theme, isMobile, darkMode) {
     archiveTaskName: { color: theme.text, fontWeight: 800, fontSize: "14px", lineHeight: 1.3, overflowWrap: "anywhere" },
     archiveInlineNoteButton: { padding: "6px 10px", minHeight: "36px", borderRadius: "999px", border: `1px solid ${theme.border}`, background: "transparent", color: theme.muted, cursor: "pointer", fontSize: "11px", fontFamily: BODY_FONT, fontWeight: 600, lineHeight: 1.2, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
     archiveUndoButton: { padding: "8px 12px", minHeight: "44px", borderRadius: "10px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, color: theme.buttonText, cursor: "pointer", fontSize: "12px", fontFamily: BODY_FONT, fontWeight: 700, flexShrink: 0, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
-    archiveDeleteButton: { padding: "8px 12px", minHeight: "44px", borderRadius: "10px", border: `1px solid ${theme.dangerBorder}`, background: darkMode ? "rgba(81, 46, 53, 0.95)" : "rgba(255, 240, 242, 0.98)", color: theme.dangerText, cursor: "pointer", fontSize: "12px", fontFamily: BODY_FONT, fontWeight: 800, flexShrink: 0, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
-    archiveActionsRow: { display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 },
     archiveFilterGrid: { display: "grid", gap: "10px", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1fr) minmax(0, 1fr) auto", width: "100%", minWidth: 0, alignItems: isMobile ? "start" : "end" },
     archiveFilterCell: { minWidth: 0, width: "100%", boxSizing: "border-box", display: "grid", gap: "4px", alignContent: "start" },
     archiveFilterAction: { display: "flex", alignItems: "flex-end", minWidth: 0, width: "100%", boxSizing: "border-box", justifyContent: "stretch" },
