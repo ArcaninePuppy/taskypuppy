@@ -1377,17 +1377,17 @@ export default function App() {
                         overflowY: detailsOpen ? "auto" : "hidden",
                         paddingRight: detailsOpen ? "6px" : undefined,
                       }}
-                    >                      <div
-                      style={{
-                        ...styles.noteText,
-                        marginTop: "8px",
-                        display: "grid",
-                        gap: "10px",
-                        textAlign: "left",
-                        justifyItems: "stretch",
-                      }}
-                    >                        {task.notes && <div>{task.notes}</div>}
-
+                    >
+                      <div
+                        style={{
+                          ...styles.noteText,
+                          marginTop: "8px",
+                          display: "grid",
+                          gap: "10px",
+                          textAlign: "left",
+                          justifyItems: "stretch",
+                        }}
+                      >
                         {(task.checklist || []).length > 0 && (
                           <div style={{ display: "grid", gap: "8px" }}>
                             {task.checklist.map((item) => (
@@ -1410,11 +1410,24 @@ export default function App() {
                             ))}
                           </div>
                         )}
+
+                        {(task.checklist || []).length > 0 && task.notes && (
+                          <hr
+                            style={{
+                              width: "100%",
+                              opacity: 0.18,
+                              border: "none",
+                              borderTop: "1px solid currentColor",
+                              margin: 0,
+                            }}
+                          />
+                        )}
+
+                        {task.notes && <div>{task.notes}</div>}
                       </div>
                     </div>
                   </div>
-                ) : null}
-              </div>
+                ) : null}              </div>
             );
           })}
         </div>
@@ -1554,7 +1567,7 @@ export default function App() {
                                     textAlign: "left",
                                     justifyItems: "stretch",
                                   }}
-                                >                                  {task.notes && <div>{task.notes}</div>}
+                                >
                                   {(task.checklist || []).length > 0 && (
                                     <div style={{ display: "grid", gap: "6px" }}>
                                       {task.checklist.map((item) => (
@@ -1573,6 +1586,20 @@ export default function App() {
                                       ))}
                                     </div>
                                   )}
+
+                                  {(task.checklist || []).length > 0 && task.notes && (
+                                    <hr
+                                      style={{
+                                        width: "100%",
+                                        opacity: 0.18,
+                                        border: "none",
+                                        borderTop: "1px solid currentColor",
+                                        margin: 0,
+                                      }}
+                                    />
+                                  )}
+
+                                  {task.notes && <div>{task.notes}</div>}
                                 </div>
                               )}
                             </div>
