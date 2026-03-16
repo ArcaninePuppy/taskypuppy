@@ -1376,8 +1376,16 @@ export default function App() {
                         transition: "max-height 240ms ease, opacity 180ms ease, transform 180ms ease",
                       }}
                     >
-                      <div style={{ ...styles.noteText, marginTop: "8px", display: "grid", gap: "10px" }}>
-                        {task.notes && <div>{task.notes}</div>}
+                      <div
+                        style={{
+                          ...styles.noteText,
+                          marginTop: "8px",
+                          display: "grid",
+                          gap: "10px",
+                          textAlign: "left",
+                          justifyItems: "stretch",
+                        }}
+                      >                        {task.notes && <div>{task.notes}</div>}
 
                         {(task.checklist || []).length > 0 && (
                           <div style={{ display: "grid", gap: "8px" }}>
@@ -1536,8 +1544,16 @@ export default function App() {
                               </div>
 
                               {hasDetails && detailsOpen && (
-                                <div style={{ ...styles.noteText, marginTop: 0, display: "grid", gap: "8px" }}>
-                                  {task.notes && <div>{task.notes}</div>}
+                                <div
+                                  style={{
+                                    ...styles.noteText,
+                                    marginTop: 0,
+                                    display: "grid",
+                                    gap: "8px",
+                                    textAlign: "left",
+                                    justifyItems: "stretch",
+                                  }}
+                                >                                  {task.notes && <div>{task.notes}</div>}
                                   {(task.checklist || []).length > 0 && (
                                     <div style={{ display: "grid", gap: "6px" }}>
                                       {task.checklist.map((item) => (
