@@ -645,12 +645,12 @@ export default function App() {
       tasks.map((t) =>
         t.id === id
           ? normalizeTask({
-              ...t,
-              name: editingTaskName.trim() || t.name,
-              notes: editingNotes,
-              checklist: editingChecklist.filter((item) => item.text.trim() !== ""),
-              notesUpdatedAt: now,
-            })
+            ...t,
+            name: editingTaskName.trim() || t.name,
+            notes: editingNotes,
+            checklist: editingChecklist.filter((item) => item.text.trim() !== ""),
+            notesUpdatedAt: now,
+          })
           : t
       )
     );
@@ -922,18 +922,18 @@ export default function App() {
 
   const archiveEntries = hasArchiveFilters
     ? archiveGroups
-        .map((entry) => ({
-          ...entry,
-          list: entry.list.filter((task) => {
-            const q = archiveSearch.toLowerCase();
-            const taskISO = parseArchiveISO(task, entry.date) || entry.groupISO;
-            const matchesSearch = task.name.toLowerCase().includes(q) || (task.notes || "").toLowerCase().includes(q) || (task.checklist || []).some((item) => (item.text || "").toLowerCase().includes(q));
-            const matchesStart = !archiveStartDate || (taskISO && taskISO >= archiveStartDate);
-            const matchesEnd = !archiveEndDate || (taskISO && taskISO <= archiveEndDate);
-            return matchesSearch && matchesStart && matchesEnd;
-          }),
-        }))
-        .filter((entry) => entry.list.length > 0)
+      .map((entry) => ({
+        ...entry,
+        list: entry.list.filter((task) => {
+          const q = archiveSearch.toLowerCase();
+          const taskISO = parseArchiveISO(task, entry.date) || entry.groupISO;
+          const matchesSearch = task.name.toLowerCase().includes(q) || (task.notes || "").toLowerCase().includes(q) || (task.checklist || []).some((item) => (item.text || "").toLowerCase().includes(q));
+          const matchesStart = !archiveStartDate || (taskISO && taskISO >= archiveStartDate);
+          const matchesEnd = !archiveEndDate || (taskISO && taskISO <= archiveEndDate);
+          return matchesSearch && matchesStart && matchesEnd;
+        }),
+      }))
+      .filter((entry) => entry.list.length > 0)
     : archiveGroups.slice(0, 7);
 
   const galleryStickers = [
@@ -1507,17 +1507,16 @@ export default function App() {
                                   )}
                                 </div>
 
-                                <div style={styles.archiveActionsRow}>
+                                <div style={{ ...styles.archiveActionsRow, gap: "8px" }}>                                  <button
+                                  className="pressable"
+                                  style={styles.archiveUndoButton}
+                                  onClick={() => undoFromArchive(task, entry.date)}
+                                >
+                                  Undo
+                                </button>
                                   <button
                                     className="pressable"
-                                    style={styles.archiveUndoButton}
-                                    onClick={() => undoFromArchive(task, entry.date)}
-                                  >
-                                    Undo
-                                  </button>
-                                  <button
-                                    className="pressable"
-                                    style={styles.archiveDeleteButton}
+                                    style={styles.smallButton}
                                     onClick={() => deleteArchivedTask(task, entry.date)}
                                   >
                                     {isMobile ? "❌" : "❌ Delete"}
