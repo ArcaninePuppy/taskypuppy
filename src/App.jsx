@@ -1190,7 +1190,7 @@ export default function App() {
                 </div>
 
                 <div style={styles.footerText}>
-                  Your data stays local to this browser on this device. Please make backups regularly.
+                  Tasky Puppy keeps your data local here, so make backups now and then.
                 </div>
 
                 <div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}>
