@@ -111,18 +111,12 @@ export default function App() {
   const starPanelRef = useRef(null);
   const celebrateTimerRef = useRef(null);
 
-  /* ======================================================
-     EFFECTS
-  ====================================================== */
   useEffect(() => {
     function handleResize() {
       setIsMobile(window.innerWidth <= 640);
     }
     window.addEventListener("resize", handleResize);
-    /* ======================================================
-     MAIN RENDER
-  ====================================================== */
-  return () => window.removeEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -131,9 +125,6 @@ export default function App() {
     };
   }, []);
 
-  /* ======================================================
-     PANEL CONTROLS
-  ====================================================== */
   function closeAllPanels() {
     setShowDataInfo(false);
     setShowDataDetails(false);
@@ -337,9 +328,6 @@ export default function App() {
     celebrateTimerRef.current = setTimeout(() => setHeaderCelebrate(false), 800);
   }
 
-  /* ======================================================
-     TASK CREATION
-  ====================================================== */
   function addNewTaskChecklistItem() {
     setNewTaskChecklist((prev) => [...prev, createChecklistItem("")]);
   }
@@ -437,9 +425,6 @@ export default function App() {
     setTasks((prev) => prev.map((task) => (task.id === taskId ? normalizeTask(updater(task)) : task)));
   }
 
-  /* ======================================================
-     TASK EDITING AND CHECKLISTS
-  ====================================================== */
   function addChecklistItemToEditor() {
     setEditingChecklist((prev) => [...prev, createChecklistItem("")]);
   }
@@ -465,9 +450,6 @@ export default function App() {
     }));
   }
 
-  /* ======================================================
-     TASK COMPLETION AND ARCHIVE MOVES
-  ====================================================== */
   function completeTask(task, e) {
     createDailyRecoveryBackup();
     const rect = e.currentTarget.getBoundingClientRect();
@@ -708,9 +690,6 @@ export default function App() {
     return style;
   }
 
-  /* ======================================================
-     IMPORT / EXPORT / DATA MANAGEMENT
-  ====================================================== */
   function exportJSON() {
     const exportPayload = {
       stars: {
@@ -917,9 +896,6 @@ export default function App() {
 
   const hasArchiveFilters = archiveSearch.trim() !== "" || archiveStartDate !== "" || archiveEndDate !== "";
 
-  /* ======================================================
-     DERIVED DATA
-  ====================================================== */
   const filteredTasks = tasks.filter((t) => {
     const q = queueSearch.toLowerCase();
     return t.name.toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q) || (t.checklist || []).some((item) => (item.text || "").toLowerCase().includes(q));
@@ -964,7 +940,6 @@ export default function App() {
     ...defaultStickerPack.map((src, index) => ({ id: `built-${index}`, src, isCustom: false })),
     ...uploadedStickers.map((src, index) => ({ id: `custom-${index}`, src, isCustom: true })),
   ];
-  const hasUploadedGalleryStickers = uploadedStickers.length > 0;
   const theme = getTheme(darkMode);
   const styles = getStyles(theme, isMobile, darkMode);
 
@@ -998,9 +973,6 @@ export default function App() {
     };
   }
 
-  /* ======================================================
-     RENDER HELPERS
-  ====================================================== */
   const desktopTitleBlock = (
     <div style={styles.titleBlock}>
       <h1 style={{ ...styles.titleText, animation: headerCelebrate ? "tpTitleGlow 0.8s ease" : "none" }}>Tasky Puppy</h1>
@@ -1042,11 +1014,7 @@ export default function App() {
   );
 
   return (
-    <div style={styles.page}><div style={styles.bottomStarField} /><div style={styles.bottomStarFieldSecondary} />
-      {/* Existing JSX structure intentionally preserved for the 3-file split. */}
-      {/* This keeps behavior stable before the next feature pass. */}
-      {/* The render body below matches your current app, with helpers/styles moved out. */}
-
+    <div style={styles.page}>
       {expandedGallerySticker && (
         <div style={styles.galleryExpandedOverlay} onClick={() => setExpandedGallerySticker(null)}>
           <div style={styles.galleryExpandedCard} onClick={(e) => e.stopPropagation()}>
@@ -1076,8 +1044,6 @@ export default function App() {
         @keyframes tpMascotBounce {0% { transform: translateY(0) scale(1); }22% { transform: translateY(-8px) scale(1.03); }45% { transform: translateY(0) scale(0.995); }65% { transform: translateY(-3px) scale(1.01); }100% { transform: translateY(0) scale(1); }}
         @keyframes tpStarPop {0% { transform: scale(1); }25% { transform: scale(1.12); }45% { transform: scale(0.98); }100% { transform: scale(1); }}
         @keyframes tpTitleGlow {0% { text-shadow: 0 0 0 rgba(255,255,255,0); transform: scale(1);}30% { text-shadow: 0 0 12px rgba(150,180,255,0.28), 0 0 24px rgba(255,215,120,0.18); transform: scale(1.015);}100% { text-shadow: 0 0 12px rgba(150,180,255,0.18), 0 0 2px rgba(255,255,255,0.12); transform: scale(1); }}
-        @keyframes starDriftPrimary {0% { background-position: center bottom; } 100% { background-position: center 28px; }}
-        @keyframes starDriftSecondary {0% { background-position: center bottom; } 100% { background-position: center -22px; }}
         .pressable:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.18); }
         .pressable:active { transform: scale(0.96); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
         * { box-sizing: border-box; }
@@ -1191,7 +1157,7 @@ export default function App() {
           <div style={{ position: "relative" }} ref={dataPanelRef}>
             <button className="pressable" style={showDataInfo ? styles.buttonPrimary : styles.button} onClick={toggleDataPanel}>Your Data</button>
             {showDataInfo && isMobile && <div style={styles.overlay} onClick={() => setShowDataInfo(false)} />}
-            {showDataInfo && <div style={styles.infoPanel}><div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>Your Data</div><div style={styles.panelActionRow}><button className="pressable" style={styles.panelActionButton} onClick={exportJSON}>Export JSON</button><button className="pressable" style={styles.panelActionButton} onClick={() => importInputRef.current?.click()}>Import JSON</button><button className="pressable" style={styles.panelActionButton} onClick={restoreRecoveryBackup}>Emergency Restore</button></div><div style={styles.footerText}>Your personal data in this app is intended to be cloud-free. Please make regular copies! Or else!</div><div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}><button className="pressable" style={styles.detailsToggle} onClick={() => setShowDataDetails((prev) => !prev)}>{showDataDetails ? "Hide Details" : "Show Details"}</button></div>{showDataDetails && <div style={styles.infoPanelScrollArea}><div style={{ ...styles.footerText, marginTop: "10px" }}>On desktop, your data is stored locally in this browser on this device. On mobile, it is also generally stored locally in the browser, but mobile browsers can be less predictable if app or browser data is cleared, the browser is reinstalled, private browsing is used, or the device changes.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>This means your queue, archive, and progress do not automatically sync between devices. Export backups regularly if you want to preserve your data or move it somewhere else.</div><div style={{ ...styles.footerText, marginTop: "8px" }}><strong>Emergency Restore</strong> is the app’s once-per-day local “oops” backup. The first meaningful change you make each day saves a recovery snapshot before that change, and that snapshot stays put for the rest of the day.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>That makes <strong>Emergency Restore</strong> best for undoing a messy moment from today, using a backup saved locally in this browser on this device.</div><div style={{ ...styles.footerText, marginTop: "8px" }}><strong>Import JSON</strong> uses a backup file you picked yourself. It is best for restoring an older save, moving your data to another device, or merging progress from somewhere else.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>In short: <strong>Emergency Restore</strong> is your local daily “oops” button, while <strong>Import JSON</strong> is your long-term moving-and-backup tool.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>If you have this app open in multiple tabs or windows on the same browser and same local address, changes should now update across them automatically.</div><div style={styles.dangerSection}><div style={styles.dangerText}><strong>Advanced action:</strong> Need a full fresh start? This deletes all local Tasky Puppy data from this browser on this device, including your queue, archive, stars, emergency restore backup, and interface preferences.</div><button className="pressable" style={styles.dangerButton} onClick={deleteAllData}>Delete All Data</button></div></div>}</div>}
+            {showDataInfo && <div style={styles.infoPanel}><div style={{ fontWeight: 800, color: theme.title, marginBottom: "8px" }}>Your Data</div><div style={styles.panelActionRow}><button className="pressable" style={styles.panelActionButton} onClick={exportJSON}>Export JSON</button><button className="pressable" style={styles.panelActionButton} onClick={() => importInputRef.current?.click()}>Import JSON</button><button className="pressable" style={styles.panelActionButton} onClick={restoreRecoveryBackup}>Emergency Restore</button></div><div style={styles.footerText}>Your personal data in this app is intended to be cloud-free. Please make regular copies! Or else!</div><div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}><button className="pressable" style={styles.detailsToggle} onClick={() => setShowDataDetails((prev) => !prev)}>{showDataDetails ? "Hide Details" : "Show Details"}</button></div>{showDataDetails && <div style={styles.infoPanelScrollArea}><div style={{ ...styles.footerText, marginTop: "10px" }}>On desktop, your data is stored locally in this browser on this device. On mobile, it is also generally stored locally in the browser, but mobile browsers can be less predictable if app or browser data is cleared, the browser is reinstalled, private browsing is used, or the device changes.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>This means your queue, archive, and progress do not automatically sync between devices. Export backups regularly if you want to preserve your data or move it somewhere else.</div><div style={{ ...styles.footerText, marginTop: "8px" }}><strong>Emergency Restore</strong> is your app’s once-per-day local “oops” backup. The first meaningful change you make each day saves a recovery snapshot before that change, and that snapshot stays put for the rest of the day.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>That makes <strong>Emergency Restore</strong> best for undoing a messy moment from today, using a backup saved locally in this browser on this device.</div><div style={{ ...styles.footerText, marginTop: "8px" }}><strong>Import JSON</strong> uses a backup file you picked yourself. It is best for restoring an older save, moving your data to another device, or merging progress from somewhere else.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>In short: <strong>Emergency Restore</strong> is your local daily “oops” button, while <strong>Import JSON</strong> is your long-term moving-and-backup tool.</div><div style={{ ...styles.footerText, marginTop: "8px" }}>If you have this app open in multiple tabs or windows on the same browser and same local address, changes should now update across them automatically.</div><div style={styles.dangerSection}><div style={styles.dangerText}><strong>Advanced action:</strong> Need a full fresh start? This deletes all local Tasky Puppy data from this browser on this device, including your queue, archive, stars, emergency restore backup, and interface preferences.</div><button className="pressable" style={styles.dangerButton} onClick={deleteAllData}>Delete All Data</button></div></div>}</div>}
           </div>
         </div>
 
@@ -1285,7 +1251,7 @@ export default function App() {
                       onClick={() => startEdit(task)}
                       style={{ ...styles.smallButton, ...styles.taskActionButton }}
                     >
-                      Edit
+                      {isMobile ? "✏️" : "✏️ Edit"}
                     </button>
 
                     <button
@@ -1293,7 +1259,7 @@ export default function App() {
                       onClick={() => deleteTask(task.id)}
                       style={{ ...styles.smallButton, ...styles.taskActionButton }}
                     >
-                      Delete
+                      {isMobile ? "❌" : "❌ Delete"}
                     </button>
                   </div>
                 </div>
@@ -1347,7 +1313,7 @@ export default function App() {
                               style={styles.smallButton}
                               onClick={() => deleteEditingChecklistItem(item.id)}
                             >
-                              Delete
+                              {isMobile ? "❌" : "❌ Delete"}
                             </button>
                           </div>
                         ))}
@@ -1554,7 +1520,7 @@ export default function App() {
                                     style={styles.archiveDeleteButton}
                                     onClick={() => deleteArchivedTask(task, entry.date)}
                                   >
-                                    Delete
+                                    {isMobile ? "❌" : "❌ Delete"}
                                   </button>
                                 </div>
                               </div>
@@ -1598,7 +1564,7 @@ export default function App() {
           )}
         </div>
 
-        <div style={styles.footerBar}><div style={styles.footerField}><span style={styles.footerBarText}>Just a little animal guy on the internet. This is what I think a task tracker should be. I promise all choices were made with intention!</span><div style={styles.footerLinkRow}><a href="https://twitter.com/dogbutwithfire" target="_blank" rel="noreferrer" style={styles.footerBarLink}>🐦 @dogbutwithfire</a><span style={styles.footerDivider}>•</span><a href="https://t.me/PlushArcanine" target="_blank" rel="noreferrer" style={styles.footerBarLink}>✈️ @PlushArcanine</a></div></div></div>
+        <div style={styles.footerBar}><span style={styles.footerBarText}>Just a little animal guy on the internet. This is what I think a task tracker should be. I promise all choices were made with intention!</span><div style={styles.footerLinkRow}><a href="https://twitter.com/dogbutwithfire" target="_blank" rel="noreferrer" style={styles.footerBarLink}>🐦 @dogbutwithfire</a><span style={styles.footerDivider}>•</span><a href="https://t.me/PlushArcanine" target="_blank" rel="noreferrer" style={styles.footerBarLink}>✈️ @PlushArcanine</a></div></div>
       </div>
     </div>
   );

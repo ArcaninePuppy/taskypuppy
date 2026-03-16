@@ -29,7 +29,7 @@ export function normalizeTask(task) {
     name: typeof task?.name === "string" ? task.name : "",
     notes: typeof task?.notes === "string" ? task.notes : "",
     checklist: normalizeChecklist(task?.checklist),
-    focus: Boolean(task?.focus ?? task?.star),
+    focus: Boolean(task?.focus),
     createdAt: typeof task?.createdAt === "string" ? task.createdAt : new Date().toISOString(),
     notesUpdatedAt:
       typeof task?.notesUpdatedAt === "string" || task?.notesUpdatedAt === null
@@ -87,7 +87,7 @@ export function buildStoragePayload(nextTasks, nextArchive, nextManualStars, nex
 
   return {
     app: "TaskyPuppy",
-    version: 2,
+    version: 3,
     savedAt: new Date().toISOString(),
     stars: {
       userModifiedTotal: nextManualStars,
