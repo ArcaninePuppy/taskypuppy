@@ -1507,7 +1507,7 @@ export default function App() {
                                   )}
                                 </div>
 
-                                <div style={{ ...styles.archiveActionsRow, gap: "8px" }}>                                  <button
+                                <div style={{ ...styles.archiveActionsRow, justifyContent: "flex-start", gap: "8px" }}>                                  <button
                                   className="pressable"
                                   style={styles.archiveUndoButton}
                                   onClick={() => undoFromArchive(task, entry.date)}
