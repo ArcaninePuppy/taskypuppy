@@ -79,7 +79,7 @@ export function getTheme(darkMode) {
 }
 
 function createStarPattern(fillColor) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="88" height="88" viewBox="0 0 88 88"><polygon fill="${fillColor}" points="44,8 52.816,31.865 78.238,32.875 58.3,48.688 65.196,73.135 44,58.9 22.804,73.135 29.7,48.688 9.762,32.875 35.184,31.865"/></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><path d="M90 63.5L94.9 78.6C95.6 80.8 97.6 82.2 99.9 82.2H115.7C120.8 82.2 122.9 88.8 118.8 91.8L106 101.1C104.1 102.5 103.3 104.9 104 107.1L108.8 122.1C110.4 127 104.8 131 100.7 128L87.9 118.8C86 117.4 83.4 117.4 81.5 118.8L68.7 128C64.6 131 59 127 60.6 122.1L65.4 107.1C66.1 104.9 65.3 102.5 63.4 101.1L50.6 91.8C46.5 88.8 48.6 82.2 53.7 82.2H69.5C71.8 82.2 73.8 80.8 74.5 78.6L79.4 63.5C81 58.6 88 58.6 89.6 63.5Z" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round"/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
@@ -96,7 +96,7 @@ export function getStyles(theme, isMobile, darkMode) {
       boxSizing: "border-box",
     },
     wrapper: { width: "100%", maxWidth: "1020px", position: "relative", minWidth: 0, zIndex: 1 },
-    bottomStarField: { position: "fixed", left: 0, right: 0, bottom: 0, height: isMobile ? "48vh" : "44vh", pointerEvents: "none", zIndex: 0, backgroundColor: theme.starFieldBg, backgroundImage: createStarPattern(theme.starFieldStar), backgroundRepeat: "repeat", backgroundSize: isMobile ? "78px 78px" : "92px 92px", opacity: darkMode ? 0.26 : 0.48, WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 38%, rgba(0,0,0,0.45) 62%, rgba(0,0,0,0) 100%)", maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 38%, rgba(0,0,0,0.45) 62%, rgba(0,0,0,0) 100%)" },
+    bottomStarField: { position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: isMobile ? "10px" : "16px", width: isMobile ? "calc(100vw - 24px)" : "min(1020px, calc(100vw - 48px))", height: isMobile ? "38vh" : "34vh", borderRadius: isMobile ? "24px" : "28px", pointerEvents: "none", zIndex: 0, backgroundColor: theme.starFieldBg, backgroundImage: createStarPattern(theme.starFieldStar), backgroundRepeat: "repeat", backgroundSize: isMobile ? "120px 120px" : "160px 160px", backgroundPosition: "center bottom", opacity: darkMode ? 0.22 : 0.36, overflow: "hidden", WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)", maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)" },
     row: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", minWidth: 0 },
     topBar: { display: "grid", gap: isMobile ? "10px" : "12px", marginBottom: isMobile ? "16px" : "18px" },
     headerMain: isMobile
@@ -172,7 +172,8 @@ export function getStyles(theme, isMobile, darkMode) {
     panelActionRow: { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))", gap: "8px", marginBottom: "12px", width: "100%", minWidth: 0 },
     panelActionButton: { padding: "10px 8px", borderRadius: "12px", border: `1px solid ${theme.buttonBorder}`, background: theme.buttonBg, color: theme.buttonText, cursor: "pointer", fontSize: "12px", fontFamily: BODY_FONT, fontWeight: 700, whiteSpace: "normal", textAlign: "center", lineHeight: 1.15, overflowWrap: "anywhere", boxSizing: "border-box", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: "100%", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation" },
     detailsToggle: { padding: "8px 10px", minHeight: "44px", borderRadius: "10px", border: `1px solid ${theme.border}`, background: theme.cardBgSoft, color: theme.buttonText, cursor: "pointer", fontSize: "13px", fontFamily: BODY_FONT, fontWeight: 700, boxSizing: "border-box", transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.12s ease", touchAction: "manipulation", display: "inline-flex", alignItems: "center", justifyContent: "center" },
-    footerBar: { marginTop: "18px", padding: "10px 14px", borderTop: `1px solid ${theme.footerBorder}`, display: "grid", gap: "6px", justifyItems: "center", color: theme.muted, fontSize: "12px" },
+    footerBar: { marginTop: "18px", padding: "10px 0 0", borderTop: `1px solid ${theme.footerBorder}`, display: "grid", gap: "6px", justifyItems: "center", color: theme.muted, fontSize: "12px", position: "relative", zIndex: 1 },
+    footerField: { width: "100%", background: theme.cardBg, border: `1px solid ${theme.border}`, borderRadius: "16px", padding: isMobile ? "12px" : "14px", boxShadow: darkMode ? "0 10px 24px rgba(2, 6, 23, 0.18)" : "0 8px 20px rgba(148, 163, 184, 0.12)", display: "grid", gap: "8px", justifyItems: "center" },
     footerBarText: { color: theme.muted, fontSize: "12px", lineHeight: 1.5, textAlign: "center" },
     footerLinkRow: { display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", justifyContent: "center" },
     footerBarLink: { color: darkMode ? "#9ec9ff" : "#2563eb", textDecoration: "none", fontWeight: 700, fontSize: "12px" },

@@ -1043,7 +1043,6 @@ export default function App() {
 
   return (
     <div style={styles.page}>
-      <div style={styles.bottomStarField} />
       {/* Existing JSX structure intentionally preserved for the 3-file split. */}
       {/* This keeps behavior stable before the next feature pass. */}
       {/* The render body below matches your current app, with helpers/styles moved out. */}
@@ -1083,7 +1082,7 @@ export default function App() {
         @media (max-width: 640px) { input[type="date"] { min-width: 0; width: 100%; max-width: 100%; min-height: 44px; box-sizing: border-box; display: block; -webkit-appearance: none; appearance: none; font-size: 16px; line-height: 1.2; } .pressable:hover { transform: none; box-shadow: none; } }
       `}</style>
 
-      <div style={styles.wrapper}>
+      <div style={styles.wrapper}><div style={styles.bottomStarField} />
         <input ref={importInputRef} type="file" accept="application/json,.json" onChange={handleImportFile} style={{ display: "none" }} />
         <div style={styles.topBar}>
           <div style={styles.headerMain}>
@@ -1597,7 +1596,7 @@ export default function App() {
           )}
         </div>
 
-        <div style={styles.footerBar}><span style={styles.footerBarText}>Just a little animal guy on the internet. This is what I think a task tracker should be. I promise all choices were made with intention!</span><div style={styles.footerLinkRow}><a href="https://twitter.com/dogbutwithfire" target="_blank" rel="noreferrer" style={styles.footerBarLink}>🐦 @dogbutwithfire</a><span style={styles.footerDivider}>•</span><a href="https://t.me/PlushArcanine" target="_blank" rel="noreferrer" style={styles.footerBarLink}>✈️ @PlushArcanine</a></div></div>
+        <div style={styles.footerBar}><div style={styles.footerField}><span style={styles.footerBarText}>Just a little animal guy on the internet. This is what I think a task tracker should be. I promise all choices were made with intention!</span><div style={styles.footerLinkRow}><a href="https://twitter.com/dogbutwithfire" target="_blank" rel="noreferrer" style={styles.footerBarLink}>🐦 @dogbutwithfire</a><span style={styles.footerDivider}>•</span><a href="https://t.me/PlushArcanine" target="_blank" rel="noreferrer" style={styles.footerBarLink}>✈️ @PlushArcanine</a></div></div></div>
       </div>
     </div>
   );
