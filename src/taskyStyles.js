@@ -81,13 +81,13 @@ export function getTheme(darkMode) {
 function createStarPattern(fillColor) {
   const starPath = "M90 63.5L94.9 78.6C95.6 80.8 97.6 82.2 99.9 82.2H115.7C120.8 82.2 122.9 88.8 118.8 91.8L106 101.1C104.1 102.5 103.3 104.9 104 107.1L108.8 122.1C110.4 127 104.8 131 100.7 128L87.9 118.8C86 117.4 83.4 117.4 81.5 118.8L68.7 128C64.6 131 59 127 60.6 122.1L65.4 107.1C66.1 104.9 65.3 102.5 63.4 101.1L50.6 91.8C46.5 88.8 48.6 82.2 53.7 82.2H69.5C71.8 82.2 73.8 80.8 74.5 78.6L79.4 63.5C81 58.6 88 58.6 89.6 63.5Z";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220">
-    <g transform="translate(10 12) scale(0.12) rotate(-18 90 90)">
+    <g transform="translate(10 12) scale(0.11) rotate(-18 90 90)">
       <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
     </g>
-    <g transform="translate(120 34) scale(0.11) rotate(24 90 90)">
+    <g transform="translate(120 34) scale(0.07) rotate(24 90 90)">
       <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
     </g>
-    <g transform="translate(70 126) scale(0.1) rotate(-31 90 90)">
+    <g transform="translate(70 126) scale(0.05) rotate(-31 90 90)">
       <path d="${starPath}" fill="${fillColor}" stroke="${fillColor}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
     </g>
   </svg>`;
@@ -107,7 +107,7 @@ export function getStyles(theme, isMobile, darkMode) {
       boxSizing: "border-box",
     },
     wrapper: { width: "100%", maxWidth: "1020px", position: "relative", minWidth: 0, zIndex: 1 },
-    bottomStarField: { position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: isMobile ? "10px" : "16px", width: isMobile ? "calc(100vw - 24px)" : "min(1020px, calc(100vw - 48px))", height: isMobile ? "38vh" : "34vh", borderRadius: isMobile ? "24px" : "28px", pointerEvents: "none", zIndex: 0, backgroundColor: theme.starFieldBg, backgroundImage: createStarPattern(theme.starFieldStar), backgroundRepeat: "repeat", backgroundSize: isMobile ? "220px 220px" : "240px 240px", backgroundPosition: "center bottom", opacity: darkMode ? 0.11 : 0.18, overflow: "hidden", WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)", maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)" },
+    bottomStarField: { position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: isMobile ? "10px" : "16px", width: isMobile ? "calc(100vw - 24px)" : "min(1020px, calc(100vw - 48px))", height: isMobile ? "38vh" : "34vh", borderRadius: isMobile ? "24px" : "28px", pointerEvents: "none", zIndex: 0, backgroundColor: theme.starFieldBg, backgroundImage: createStarPattern(theme.starFieldStar), backgroundRepeat: "repeat", backgroundSize: isMobile ? "110px 110px" : "120px 120px", backgroundPosition: "center bottom", opacity: darkMode ? 0.11 : 0.18, overflow: "hidden", WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)", maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.96) 26%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0) 100%)" },
     row: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", minWidth: 0 },
     topBar: { display: "grid", gap: isMobile ? "10px" : "12px", marginBottom: isMobile ? "16px" : "18px" },
     headerMain: isMobile
