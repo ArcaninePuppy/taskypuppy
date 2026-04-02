@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 
 export function DataPanel({
   styles,
@@ -106,17 +106,87 @@ export function StickerPanel({
   setStickersEnabled,
   defaultStickerPack,
   uploadedStickers,
+  includedStickersEnabled,
+  setIncludedStickersEnabled,
+  customStickersEnabled,
+  setCustomStickersEnabled,
   showStickerGallery,
   setShowStickerGallery,
   galleryStickers,
+  activeDefaultGalleryStickers,
+  hiddenDefaultGalleryStickers,
+  customGalleryStickers,
   hoveredGallerySticker,
   setHoveredGallerySticker,
   setExpandedGallerySticker,
   handleStickerUpload,
-  resetCustomStickers,
   stickerMessage,
   removeCustomSticker,
+  hideDefaultSticker,
+  restoreDefaultSticker,
+  hideAllDefaultStickers,
+  restoreAllDefaultStickers,
+  resetStickerSettings,
 }) {
+  const [showHiddenIncluded, setShowHiddenIncluded] = useState(false);
+
+  function tileStyle(isHovered) {
+    return {
+      ...styles.galleryTile,
+      boxShadow: isHovered
+        ? darkMode
+          ? "0 8px 18px rgba(59, 130, 246, 0.18)"
+          : "0 8px 18px rgba(96, 165, 250, 0.2)"
+        : darkMode
+          ? "0 2px 8px rgba(2, 6, 23, 0.18)"
+          : "0 2px 8px rgba(148, 163, 184, 0.08)",
+      transform: isHovered ? "translateY(-2px)" : "translateY(0)",
+    };
+  }
+
+  function renderStickerTile(sticker, actionLabel, actionHandler) {
+    const isHovered = hoveredGallerySticker === sticker.id;
+    return (
+      <div
+        key={sticker.id}
+        style={tileStyle(isHovered)}
+        onMouseEnter={() => setHoveredGallerySticker(sticker.id)}
+        onMouseLeave={() => setHoveredGallerySticker(null)}
+        onClick={() => setExpandedGallerySticker(sticker)}
+        onTouchStart={() => setExpandedGallerySticker(sticker)}
+      >
+        {actionHandler && (
+          <button
+            className="pressable"
+            style={{
+              ...styles.galleryDeleteButton,
+              minWidth: "unset",
+              width: "auto",
+              padding: "4px 8px",
+              borderRadius: "999px",
+              fontSize: "11px",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              actionHandler();
+            }}
+            title={actionLabel}
+          >
+            {actionLabel}
+          </button>
+        )}
+        <img
+          src={sticker.src}
+          alt="Sticker preview"
+          style={{
+            ...styles.galleryThumb,
+            transform: isHovered ? "scale(1.15)" : "scale(1)",
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div style={styles.stickerMenu}>
       <div style={{ ...styles.row, justifyContent: "space-between", marginBottom: "10px" }}>
@@ -131,22 +201,42 @@ export function StickerPanel({
       </div>
 
       <div style={styles.helperText}>
-        Built-in stickers: {defaultStickerPack.length}. Custom stickers: {uploadedStickers.length}.
+        Included stickers: {defaultStickerPack.length}. Custom stickers: {uploadedStickers.length}.
       </div>
 
-      <div style={styles.stickerManagerActions}>
-        <button
-          className="pressable"
-          style={{ ...styles.button, width: "100%" }}
-          onClick={() => setShowStickerGallery(!showStickerGallery)}
-        >
-          {showStickerGallery
-            ? `Hide Sticker Gallery (${galleryStickers.length})`
-            : `Sticker Gallery (${galleryStickers.length})`}
-        </button>
+      <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
+        <div style={{ display: "grid", gap: "6px" }}>
+          <div style={{ ...styles.helperText, fontWeight: 700, color: theme.title }}>Sticker Sources</div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              className="pressable"
+              onClick={() => setIncludedStickersEnabled((prev) => !prev)}
+              style={includedStickersEnabled ? styles.buttonPrimary : styles.button}
+            >
+              {includedStickersEnabled ? "Included On" : "Included Off"}
+            </button>
+            <button
+              className="pressable"
+              onClick={() => setCustomStickersEnabled((prev) => !prev)}
+              style={customStickersEnabled ? styles.buttonPrimary : styles.button}
+            >
+              {customStickersEnabled ? "Custom On" : "Custom Off"}
+            </button>
+          </div>
+        </div>
 
-        {stickersEnabled && (
-          <>
+        <div style={styles.stickerManagerActions}>
+          <button
+            className="pressable"
+            style={{ ...styles.button, width: "100%" }}
+            onClick={() => setShowStickerGallery(!showStickerGallery)}
+          >
+            {showStickerGallery
+              ? `Hide Sticker Gallery (${galleryStickers.length})`
+              : `Sticker Gallery (${galleryStickers.length})`}
+          </button>
+
+          {stickersEnabled && (
             <input
               type="file"
               multiple
@@ -154,15 +244,8 @@ export function StickerPanel({
               onChange={handleStickerUpload}
               style={styles.stickerFileInput}
             />
-            <button
-              className="pressable"
-              style={{ ...styles.button, width: "100%" }}
-              onClick={resetCustomStickers}
-            >
-              Reset to Default Pack
-            </button>
-          </>
-        )}
+          )}
+        </div>
       </div>
 
       {stickerMessage && <div style={styles.stickerMessage}>{stickerMessage}</div>}
@@ -170,55 +253,94 @@ export function StickerPanel({
       {showStickerGallery && (
         <div style={{ marginTop: "10px", animation: "galleryFadeIn 0.18s ease" }}>
           <div style={styles.helperText}>
-            Tap a sticker to preview it. Custom stickers can be removed directly from the gallery.
+            Tap a sticker to preview it. Hide included stickers you do not want, or remove custom stickers.
           </div>
-          <div style={styles.galleryGrid}>
-            {galleryStickers.map((sticker) => {
-              const isHovered = hoveredGallerySticker === sticker.id;
-              return (
-                <div
-                  key={sticker.id}
-                  style={{
-                    ...styles.galleryTile,
-                    boxShadow: isHovered
-                      ? darkMode
-                        ? "0 8px 18px rgba(59, 130, 246, 0.18)"
-                        : "0 8px 18px rgba(96, 165, 250, 0.2)"
-                      : darkMode
-                        ? "0 2px 8px rgba(2, 6, 23, 0.18)"
-                        : "0 2px 8px rgba(148, 163, 184, 0.08)",
-                    transform: isHovered ? "translateY(-2px)" : "translateY(0)",
-                  }}
-                  onMouseEnter={() => setHoveredGallerySticker(sticker.id)}
-                  onMouseLeave={() => setHoveredGallerySticker(null)}
-                  onClick={() => setExpandedGallerySticker(sticker)}
-                  onTouchStart={() => setExpandedGallerySticker(sticker)}
-                >
-                  {sticker.isCustom && (
-                    <button
-                      className="pressable"
-                      style={styles.galleryDeleteButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeCustomSticker(sticker.src);
-                      }}
-                      title="Remove custom sticker"
-                    >
-                      ✕
-                    </button>
+
+          <div style={{ marginTop: "12px" }}>
+            <div style={{ fontWeight: 700, color: theme.title, marginBottom: "8px" }}>
+              Active Included Stickers ({activeDefaultGalleryStickers.length})
+            </div>
+            {activeDefaultGalleryStickers.length > 0 ? (
+              <div style={styles.galleryGrid}>
+                {activeDefaultGalleryStickers.map((sticker) =>
+                  renderStickerTile(sticker, "Hide", () => hideDefaultSticker(sticker.id))
+                )}
+              </div>
+            ) : (
+              <div style={styles.helperText}>No included stickers are currently active.</div>
+            )}
+          </div>
+
+          <div style={{ marginTop: "12px" }}>
+            <div style={{ fontWeight: 700, color: theme.title, marginBottom: "8px" }}>
+              Active Custom Stickers ({customGalleryStickers.length})
+            </div>
+            {customGalleryStickers.length > 0 ? (
+              <div style={styles.galleryGrid}>
+                {customGalleryStickers.map((sticker) =>
+                  renderStickerTile(sticker, "Remove", () => removeCustomSticker(sticker.src))
+                )}
+              </div>
+            ) : (
+              <div style={styles.helperText}>No custom stickers loaded yet.</div>
+            )}
+          </div>
+
+          <div style={{ marginTop: "12px", display: "grid", gap: "8px" }}>
+            <button
+              className="pressable"
+              style={{ ...styles.button, width: "100%" }}
+              onClick={hideAllDefaultStickers}
+            >
+              Hide All Included Stickers
+            </button>
+
+            <button
+              className="pressable"
+              style={{ ...styles.button, width: "100%" }}
+              onClick={() => setShowHiddenIncluded((prev) => !prev)}
+            >
+              {showHiddenIncluded
+                ? `Hide Hidden Included Stickers (${hiddenDefaultGalleryStickers.length})`
+                : `Hidden Included Stickers (${hiddenDefaultGalleryStickers.length})`}
+            </button>
+          </div>
+
+          {showHiddenIncluded && (
+            <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(148, 163, 184, 0.18)" }}>
+              <div style={{ fontWeight: 700, color: theme.title, marginBottom: "8px" }}>
+                Hidden Included Stickers
+              </div>
+
+              {hiddenDefaultGalleryStickers.length > 0 ? (
+                <div style={styles.galleryGrid}>
+                  {hiddenDefaultGalleryStickers.map((sticker) =>
+                    renderStickerTile(sticker, "Restore", () => restoreDefaultSticker(sticker.id))
                   )}
-                  <img
-                    src={sticker.src}
-                    alt="Sticker preview"
-                    style={{
-                      ...styles.galleryThumb,
-                      transform: isHovered ? "scale(1.15)" : "scale(1)",
-                    }}
-                  />
                 </div>
-              );
-            })}
-          </div>
+              ) : (
+                <div style={styles.helperText}>No included stickers are hidden right now.</div>
+              )}
+
+              <div style={{ marginTop: "12px", display: "grid", gap: "8px" }}>
+                <button
+                  className="pressable"
+                  style={{ ...styles.button, width: "100%" }}
+                  onClick={restoreAllDefaultStickers}
+                >
+                  Restore All Included Stickers
+                </button>
+
+                <button
+                  className="pressable"
+                  style={{ ...styles.button, width: "100%" }}
+                  onClick={resetStickerSettings}
+                >
+                  Reset Sticker Settings
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

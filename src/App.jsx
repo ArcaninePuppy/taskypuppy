@@ -43,7 +43,7 @@ const stickerModules = import.meta.glob(
 
 const defaultStickerPack = Object.entries(stickerModules)
   .sort(([a], [b]) => a.localeCompare(b))
-  .map(([, module]) => module.default);
+  .map(([id, module]) => ({ id, src: module.default }));
 
 /* ======================================================
    STORAGE KEYS
@@ -53,6 +53,9 @@ const BACKUP_KEY = "tasky_puppy_backup_v1";
 const BACKUP_META_KEY = "tasky_puppy_backup_meta_v1";
 const DARK_MODE_KEY = "tasky_puppy_dark_mode_v1";
 const STICKERS_ENABLED_KEY = "tasky_puppy_stickers_enabled_v1";
+const INCLUDED_STICKERS_ENABLED_KEY = "tasky_puppy_included_stickers_enabled_v1";
+const CUSTOM_STICKERS_ENABLED_KEY = "tasky_puppy_custom_stickers_enabled_v1";
+const HIDDEN_DEFAULT_STICKERS_KEY = "tasky_puppy_hidden_default_stickers_v1";
 const CUSTOM_STICKER_MAX_COUNT = 20;
 const CUSTOM_STICKER_MAX_FILE_BYTES = 500 * 1024;
 const CUSTOM_STICKER_MAX_TOTAL_BYTES = 4 * 1024 * 1024;
@@ -88,8 +91,11 @@ export default function App() {
   const [archiveEndDate, setArchiveEndDate] = useState("");
   const [stickersEnabled, setStickersEnabled] = useState(false);
   const [showStickerSettings, setShowStickerSettings] = useState(false);
-  const [stickers, setStickers] = useState(defaultStickerPack);
+  const [stickers, setStickers] = useState(defaultStickerPack.map((sticker) => sticker.src));
   const [uploadedStickers, setUploadedStickers] = useState([]);
+  const [includedStickersEnabled, setIncludedStickersEnabled] = useState(true);
+  const [customStickersEnabled, setCustomStickersEnabled] = useState(true);
+  const [hiddenDefaultStickerIds, setHiddenDefaultStickerIds] = useState([]);
   const [activeStickers, setActiveStickers] = useState([]);
   const [starParticles, setStarParticles] = useState([]);
   const [titleSticker, setTitleSticker] = useState(null);
@@ -223,8 +229,17 @@ export default function App() {
 
       const savedDarkMode = localStorage.getItem(DARK_MODE_KEY);
       const savedStickersEnabled = localStorage.getItem(STICKERS_ENABLED_KEY);
+      const savedIncludedStickersEnabled = localStorage.getItem(INCLUDED_STICKERS_ENABLED_KEY);
+      const savedCustomStickersEnabled = localStorage.getItem(CUSTOM_STICKERS_ENABLED_KEY);
+      const savedHiddenDefaultStickerIds = localStorage.getItem(HIDDEN_DEFAULT_STICKERS_KEY);
       if (savedDarkMode !== null) setDarkMode(savedDarkMode === "true");
       if (savedStickersEnabled !== null) setStickersEnabled(savedStickersEnabled === "true");
+      if (savedIncludedStickersEnabled !== null) setIncludedStickersEnabled(savedIncludedStickersEnabled === "true");
+      if (savedCustomStickersEnabled !== null) setCustomStickersEnabled(savedCustomStickersEnabled === "true");
+      if (savedHiddenDefaultStickerIds) {
+        const parsedHiddenDefaultStickerIds = JSON.parse(savedHiddenDefaultStickerIds);
+        setHiddenDefaultStickerIds(Array.isArray(parsedHiddenDefaultStickerIds) ? parsedHiddenDefaultStickerIds : []);
+      }
     } catch (error) {
       console.error("Failed to load TaskyPuppy data:", error);
       setTasks([]);
@@ -255,6 +270,12 @@ export default function App() {
         }
         if (event.key === DARK_MODE_KEY && event.newValue !== null) setDarkMode(event.newValue === "true");
         if (event.key === STICKERS_ENABLED_KEY && event.newValue !== null) setStickersEnabled(event.newValue === "true");
+        if (event.key === INCLUDED_STICKERS_ENABLED_KEY && event.newValue !== null) setIncludedStickersEnabled(event.newValue === "true");
+        if (event.key === CUSTOM_STICKERS_ENABLED_KEY && event.newValue !== null) setCustomStickersEnabled(event.newValue === "true");
+        if (event.key === HIDDEN_DEFAULT_STICKERS_KEY && event.newValue !== null) {
+          const parsedHiddenDefaultStickerIds = JSON.parse(event.newValue);
+          setHiddenDefaultStickerIds(Array.isArray(parsedHiddenDefaultStickerIds) ? parsedHiddenDefaultStickerIds : []);
+        }
       } catch (error) {
         console.error("Failed to sync TaskyPuppy data across tabs:", error);
       }
@@ -291,8 +312,36 @@ export default function App() {
   }, [stickersEnabled]);
 
   useEffect(() => {
-    setStickers([...defaultStickerPack, ...uploadedStickers]);
-  }, [uploadedStickers]);
+    try {
+      localStorage.setItem(INCLUDED_STICKERS_ENABLED_KEY, String(includedStickersEnabled));
+    } catch (error) {
+      console.error("Failed to save included sticker preference:", error);
+    }
+  }, [includedStickersEnabled]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CUSTOM_STICKERS_ENABLED_KEY, String(customStickersEnabled));
+    } catch (error) {
+      console.error("Failed to save custom sticker preference:", error);
+    }
+  }, [customStickersEnabled]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(HIDDEN_DEFAULT_STICKERS_KEY, JSON.stringify(hiddenDefaultStickerIds));
+    } catch (error) {
+      console.error("Failed to save hidden sticker settings:", error);
+    }
+  }, [hiddenDefaultStickerIds]);
+
+  useEffect(() => {
+    const activeDefaultStickers = includedStickersEnabled
+      ? defaultStickerPack.filter((sticker) => !hiddenDefaultStickerIds.includes(sticker.id)).map((sticker) => sticker.src)
+      : [];
+    const activeCustomStickers = customStickersEnabled ? uploadedStickers : [];
+    setStickers([...activeDefaultStickers, ...activeCustomStickers]);
+  }, [uploadedStickers, includedStickersEnabled, customStickersEnabled, hiddenDefaultStickerIds]);
 
   useEffect(() => {
     if (defaultStickerPack.length > 0) {
@@ -575,6 +624,9 @@ export default function App() {
       localStorage.removeItem(BACKUP_META_KEY);
       localStorage.removeItem(DARK_MODE_KEY);
       localStorage.removeItem(STICKERS_ENABLED_KEY);
+      localStorage.removeItem(INCLUDED_STICKERS_ENABLED_KEY);
+      localStorage.removeItem(CUSTOM_STICKERS_ENABLED_KEY);
+      localStorage.removeItem(HIDDEN_DEFAULT_STICKERS_KEY);
       setTasks([]);
       setTaskName("");
       setNotes("");
@@ -599,8 +651,11 @@ export default function App() {
       setShowDataInfo(false);
       setDarkMode(false);
       setStickersEnabled(false);
+      setIncludedStickersEnabled(true);
+      setCustomStickersEnabled(true);
+      setHiddenDefaultStickerIds([]);
       setUploadedStickers([]);
-      setStickers(defaultStickerPack);
+      setStickers(defaultStickerPack.map((sticker) => sticker.src));
       setStickerMessage("");
       window.alert("All local Tasky Puppy data was deleted from this browser.");
     } catch (error) {
@@ -837,6 +892,39 @@ export default function App() {
     setStickerMessage("Reset to the default sticker pack.");
   }
 
+  function hideDefaultSticker(stickerId) {
+    setHiddenDefaultStickerIds((prev) => (prev.includes(stickerId) ? prev : [...prev, stickerId]));
+    setStickerMessage("Included sticker hidden.");
+  }
+
+  function restoreDefaultSticker(stickerId) {
+    setHiddenDefaultStickerIds((prev) => prev.filter((id) => id !== stickerId));
+    setStickerMessage("Included sticker restored.");
+  }
+
+  function hideAllDefaultStickers() {
+    if (defaultStickerPack.length === 0) return;
+    setHiddenDefaultStickerIds(defaultStickerPack.map((sticker) => sticker.id));
+    setStickerMessage("All included stickers hidden.");
+  }
+
+  function restoreAllDefaultStickers() {
+    setHiddenDefaultStickerIds([]);
+    setStickerMessage("All included stickers restored.");
+  }
+
+  function resetStickerSettings() {
+    const confirmed = window.confirm(
+      "Reset sticker settings? This will restore all included stickers and remove all custom stickers."
+    );
+    if (!confirmed) return;
+    setIncludedStickersEnabled(true);
+    setCustomStickersEnabled(true);
+    setHiddenDefaultStickerIds([]);
+    setUploadedStickers([]);
+    setStickerMessage("Sticker settings were reset.");
+  }
+
   async function handleImportFile(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -985,10 +1073,18 @@ export default function App() {
         .filter((entry) => entry.list.length > 0)
     : archiveGroups.slice(0, 7);
 
-  const galleryStickers = [
-    ...defaultStickerPack.map((src, index) => ({ id: `built-${index}`, src, isCustom: false })),
-    ...uploadedStickers.map((src, index) => ({ id: `custom-${index}`, src, isCustom: true })),
-  ];
+  const activeDefaultGalleryStickers = defaultStickerPack
+    .filter((sticker) => !hiddenDefaultStickerIds.includes(sticker.id))
+    .map((sticker) => ({ ...sticker, isCustom: false }));
+  const hiddenDefaultGalleryStickers = defaultStickerPack
+    .filter((sticker) => hiddenDefaultStickerIds.includes(sticker.id))
+    .map((sticker) => ({ ...sticker, isCustom: false }));
+  const customGalleryStickers = uploadedStickers.map((src, index) => ({
+    id: `custom-${index}`,
+    src,
+    isCustom: true,
+  }));
+  const galleryStickers = [...activeDefaultGalleryStickers, ...customGalleryStickers];
   const theme = getTheme(darkMode);
   const styles = getStyles(theme, isMobile, darkMode);
 
@@ -1192,9 +1288,16 @@ export default function App() {
                       setStickersEnabled={setStickersEnabled}
                       defaultStickerPack={defaultStickerPack}
                       uploadedStickers={uploadedStickers}
+                      includedStickersEnabled={includedStickersEnabled}
+                      setIncludedStickersEnabled={setIncludedStickersEnabled}
+                      customStickersEnabled={customStickersEnabled}
+                      setCustomStickersEnabled={setCustomStickersEnabled}
                       showStickerGallery={showStickerGallery}
                       setShowStickerGallery={setShowStickerGallery}
                       galleryStickers={galleryStickers}
+                      activeDefaultGalleryStickers={activeDefaultGalleryStickers}
+                      hiddenDefaultGalleryStickers={hiddenDefaultGalleryStickers}
+                      customGalleryStickers={customGalleryStickers}
                       hoveredGallerySticker={hoveredGallerySticker}
                       setHoveredGallerySticker={setHoveredGallerySticker}
                       setExpandedGallerySticker={setExpandedGallerySticker}
@@ -1202,6 +1305,11 @@ export default function App() {
                       resetCustomStickers={resetCustomStickers}
                       stickerMessage={stickerMessage}
                       removeCustomSticker={removeCustomSticker}
+                      hideDefaultSticker={hideDefaultSticker}
+                      restoreDefaultSticker={restoreDefaultSticker}
+                      hideAllDefaultStickers={hideAllDefaultStickers}
+                      restoreAllDefaultStickers={restoreAllDefaultStickers}
+                      resetStickerSettings={resetStickerSettings}
                     />
                   )}
                 </div>
@@ -1264,6 +1372,44 @@ export default function App() {
           </div>
         </div>
 
+        <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+          <button
+            className="pressable"
+            style={{
+              ...(showNewTaskCard ? styles.buttonPrimary : styles.button),
+              padding: "8px 14px",
+              borderRadius: "999px",
+            }}
+            onClick={() => setShowNewTaskCard((prev) => !prev)}
+          >
+            {showNewTaskCard ? "Hide New Task" : "New Task"}
+          </button>
+        </div>
+
+        {showNewTaskCard && (
+          <div style={{ marginBottom: "12px" }}>
+            <NewTaskCard
+              styles={styles}
+              isMobile={isMobile}
+              taskName={taskName}
+              setTaskName={setTaskName}
+              notes={notes}
+              setNotes={setNotes}
+              newTaskChecklist={newTaskChecklist}
+              newTaskFocus={newTaskFocus}
+              setNewTaskFocus={setNewTaskFocus}
+              newTaskCritical={newTaskCritical}
+              setNewTaskCritical={setNewTaskCritical}
+              focusToggleStyle={focusToggleStyle}
+              urgentToggleStyle={urgentToggleStyle}
+              updateNewTaskChecklistItem={updateNewTaskChecklistItem}
+              deleteNewTaskChecklistItem={deleteNewTaskChecklistItem}
+              addNewTaskChecklistItem={addNewTaskChecklistItem}
+              addTask={addTask}
+            />
+          </div>
+        )}
+
         <div style={{ marginBottom: "12px" }}>
           <input
             style={styles.input}
@@ -1312,38 +1458,6 @@ export default function App() {
             <option value="edited_newest">Edit Sort: Newest First</option>
             <option value="edited_oldest">Edit Sort: Oldest First</option>
           </select>
-        </div>
-
-        <div style={{ display: "grid", gap: "12px" }}>
-          <button
-            className="pressable"
-            style={showNewTaskCard ? styles.buttonPrimary : styles.button}
-            onClick={() => setShowNewTaskCard((prev) => !prev)}
-          >
-            {showNewTaskCard ? "Hide New Task" : "New Task"}
-          </button>
-
-          {showNewTaskCard && (
-            <NewTaskCard
-              styles={styles}
-              isMobile={isMobile}
-              taskName={taskName}
-              setTaskName={setTaskName}
-              notes={notes}
-              setNotes={setNotes}
-              newTaskChecklist={newTaskChecklist}
-              newTaskFocus={newTaskFocus}
-              setNewTaskFocus={setNewTaskFocus}
-              newTaskCritical={newTaskCritical}
-              setNewTaskCritical={setNewTaskCritical}
-              focusToggleStyle={focusToggleStyle}
-              urgentToggleStyle={urgentToggleStyle}
-              updateNewTaskChecklistItem={updateNewTaskChecklistItem}
-              deleteNewTaskChecklistItem={deleteNewTaskChecklistItem}
-              addNewTaskChecklistItem={addNewTaskChecklistItem}
-              addTask={addTask}
-            />
-          )}
         </div>
 
         <div>
