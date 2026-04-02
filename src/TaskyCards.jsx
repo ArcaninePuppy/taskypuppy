@@ -25,22 +25,7 @@ export function NewTaskCard({
       <div style={styles.cardStars}>✦ ✦ ✦</div>
 
       <div style={{ display: "grid", gap: "12px" }}>
-        <input
-          style={styles.input}
-          maxLength={100}
-          placeholder="Task name"
-          value={taskName}
-          onChange={(e) => setTaskName(e.target.value)}
-        />
-
-        <textarea
-          style={styles.textarea}
-          placeholder="Details / notes (optional)"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
-
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
           <button
             className="pressable"
             onClick={() => setNewTaskFocus((prev) => !prev)}
@@ -57,6 +42,21 @@ export function NewTaskCard({
             {isMobile ? "⚠️" : "⚠️ Urgent"}
           </button>
         </div>
+
+        <input
+          style={styles.input}
+          maxLength={100}
+          placeholder="Task name"
+          value={taskName}
+          onChange={(e) => setTaskName(e.target.value)}
+        />
+
+        <textarea
+          style={styles.textarea}
+          placeholder="Details / notes (optional)"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
 
         <div style={{ display: "grid", gap: "8px" }}>
           {newTaskChecklist.length > 0 && (
@@ -146,8 +146,7 @@ export function TaskCard(props) {
 
   const isNextTask = nextTaskMode && index === 0;
   const detailsOpen = expandedDetails[task.id];
-  const hasDetails =
-    taskHasDetails(task) || Boolean(task.notesUpdatedAt);
+  const hasDetails = taskHasDetails(task) || Boolean(task.notesUpdatedAt);
 
   return (
     <div
@@ -522,6 +521,7 @@ export function ArchivePanel({
                     const detailsOpen = expandedArchiveNotes[archiveNoteKey];
                     const hasDetails =
                       taskHasDetails(task) || Boolean(task.notesUpdatedAt);
+
                     return (
                       <div key={task.id} style={styles.archiveTaskRow}>
                         <div style={styles.archiveCompactCard}>

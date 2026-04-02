@@ -67,6 +67,7 @@ export default function App() {
   const [newTaskChecklist, setNewTaskChecklist] = useState([]);
   const [newTaskFocus, setNewTaskFocus] = useState(false);
   const [newTaskCritical, setNewTaskCritical] = useState(false);
+  const [showNewTaskCard, setShowNewTaskCard] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingTaskName, setEditingTaskName] = useState("");
   const [editingNotes, setEditingNotes] = useState("");
@@ -369,6 +370,7 @@ export default function App() {
     setNewTaskChecklist([]);
     setNewTaskFocus(false);
     setNewTaskCritical(false);
+    setShowNewTaskCard(false);
   }
 
   function spawnStars(x, y) {
@@ -577,6 +579,7 @@ export default function App() {
       setTaskName("");
       setNotes("");
       setNewTaskChecklist([]);
+      setShowNewTaskCard(false);
       setEditingId(null);
       setEditingTaskName("");
       setEditingNotes("");
@@ -1311,25 +1314,37 @@ export default function App() {
           </select>
         </div>
 
-        <NewTaskCard
-          styles={styles}
-          isMobile={isMobile}
-          taskName={taskName}
-          setTaskName={setTaskName}
-          notes={notes}
-          setNotes={setNotes}
-          newTaskChecklist={newTaskChecklist}
-          newTaskFocus={newTaskFocus}
-          setNewTaskFocus={setNewTaskFocus}
-          newTaskCritical={newTaskCritical}
-          setNewTaskCritical={setNewTaskCritical}
-          focusToggleStyle={focusToggleStyle}
-          urgentToggleStyle={urgentToggleStyle}
-          updateNewTaskChecklistItem={updateNewTaskChecklistItem}
-          deleteNewTaskChecklistItem={deleteNewTaskChecklistItem}
-          addNewTaskChecklistItem={addNewTaskChecklistItem}
-          addTask={addTask}
-        />
+        <div style={{ display: "grid", gap: "12px" }}>
+          <button
+            className="pressable"
+            style={showNewTaskCard ? styles.buttonPrimary : styles.button}
+            onClick={() => setShowNewTaskCard((prev) => !prev)}
+          >
+            {showNewTaskCard ? "Hide New Task" : "New Task"}
+          </button>
+
+          {showNewTaskCard && (
+            <NewTaskCard
+              styles={styles}
+              isMobile={isMobile}
+              taskName={taskName}
+              setTaskName={setTaskName}
+              notes={notes}
+              setNotes={setNotes}
+              newTaskChecklist={newTaskChecklist}
+              newTaskFocus={newTaskFocus}
+              setNewTaskFocus={setNewTaskFocus}
+              newTaskCritical={newTaskCritical}
+              setNewTaskCritical={setNewTaskCritical}
+              focusToggleStyle={focusToggleStyle}
+              urgentToggleStyle={urgentToggleStyle}
+              updateNewTaskChecklistItem={updateNewTaskChecklistItem}
+              deleteNewTaskChecklistItem={deleteNewTaskChecklistItem}
+              addNewTaskChecklistItem={addNewTaskChecklistItem}
+              addTask={addTask}
+            />
+          )}
+        </div>
 
         <div>
           {sortedTasks.map((task, index) => (
