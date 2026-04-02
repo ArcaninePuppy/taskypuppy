@@ -9,6 +9,12 @@ export function NewTaskCard({
   notes,
   setNotes,
   newTaskChecklist,
+  newTaskFocus,
+  setNewTaskFocus,
+  newTaskCritical,
+  setNewTaskCritical,
+  focusToggleStyle,
+  urgentToggleStyle,
   updateNewTaskChecklistItem,
   deleteNewTaskChecklistItem,
   addNewTaskChecklistItem,
@@ -33,6 +39,24 @@ export function NewTaskCard({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
+
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          <button
+            className="pressable"
+            onClick={() => setNewTaskFocus((prev) => !prev)}
+            style={focusToggleStyle(newTaskFocus)}
+          >
+            {isMobile ? "📌" : "📌 Focus"}
+          </button>
+
+          <button
+            className="pressable"
+            onClick={() => setNewTaskCritical((prev) => !prev)}
+            style={urgentToggleStyle(newTaskCritical)}
+          >
+            {isMobile ? "⚠️" : "⚠️ Urgent"}
+          </button>
+        </div>
 
         <div style={{ display: "grid", gap: "8px" }}>
           {newTaskChecklist.length > 0 && (
@@ -123,6 +147,7 @@ export function TaskCard(props) {
   const isNextTask = nextTaskMode && index === 0;
   const detailsOpen = expandedDetails[task.id];
   const hasDetails = taskHasDetails(task);
+  const hasVisibleDetails = hasDetails || Boolean(task.notesUpdatedAt);
 
   return (
     <div
@@ -181,7 +206,7 @@ export function TaskCard(props) {
             onClick={() => toggleFocus(task.id)}
             style={{ ...focusToggleStyle(task.focus), ...styles.taskActionButton }}
           >
-            {isMobile ? "⭐" : "⭐ Focus"}
+            {isMobile ? "📌" : "📌 Focus"}
           </button>
 
           <button
@@ -304,7 +329,7 @@ export function TaskCard(props) {
             </button>
           </div>
         </div>
-      ) : hasDetails ? (
+      ) : hasVisibleDetails ? (
         <div style={{ marginTop: "10px" }}>
           <button
             className="pressable"
@@ -316,7 +341,7 @@ export function TaskCard(props) {
               {(task.checklist || []).length > 0
                 ? `${(task.checklist || []).filter((item) => item.completed).length}/${(task.checklist || []).length} checked`
                 : task.notesUpdatedAt
-                  ? "updated"
+                  ? "edited"
                   : "open"}
             </span>
           </button>
@@ -378,6 +403,17 @@ export function TaskCard(props) {
               )}
 
               {task.notes && <div>{task.notes}</div>}
+
+              {task.notesUpdatedAt && (
+                <div
+                  style={{
+                    fontSize: "12px",
+                    opacity: 0.68,
+                  }}
+                >
+                  Last edited {formatCompactDateTime(task.notesUpdatedAt)}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -402,6 +438,7 @@ export function ArchivePanel({
   expandedArchiveNotes,
   toggleArchiveNotes,
   taskHasDetails,
+  formatCompactDateTime,
   undoFromArchive,
   deleteArchivedTask,
 }) {
@@ -484,6 +521,8 @@ export function ArchivePanel({
                     const archiveNoteKey = `${entry.date}-${task.id}`;
                     const detailsOpen = expandedArchiveNotes[archiveNoteKey];
                     const hasDetails = taskHasDetails(task);
+                    const hasVisibleDetails = hasDetails || Boolean(task.notesUpdatedAt);
+  const hasVisibleDetails = hasDetails || Boolean(task.notesUpdatedAt);
 
                     return (
                       <div key={task.id} style={styles.archiveTaskRow}>
@@ -492,7 +531,7 @@ export function ArchivePanel({
                             <div style={styles.archiveTitleRow}>
                               <span style={styles.archiveTaskName}>{task.name}</span>
 
-                              {hasDetails && (
+                              {hasVisibleDetails && (
                                 <button
                                   className="pressable"
                                   style={styles.archiveInlineNoteButton}
@@ -531,7 +570,7 @@ export function ArchivePanel({
                             </div>
                           </div>
 
-                          {hasDetails && detailsOpen && (
+                          {hasVisibleDetails && detailsOpen && (
                             <div
                               style={{
                                 ...styles.noteText,
@@ -574,6 +613,17 @@ export function ArchivePanel({
                               )}
 
                               {task.notes && <div>{task.notes}</div>}
+
+                              {task.notesUpdatedAt && (
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    opacity: 0.68,
+                                  }}
+                                >
+                                  Last edited {formatCompactDateTime(task.notesUpdatedAt)}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

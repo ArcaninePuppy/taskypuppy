@@ -65,6 +65,8 @@ export default function App() {
   const [taskName, setTaskName] = useState("");
   const [notes, setNotes] = useState("");
   const [newTaskChecklist, setNewTaskChecklist] = useState([]);
+  const [newTaskFocus, setNewTaskFocus] = useState(false);
+  const [newTaskCritical, setNewTaskCritical] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingTaskName, setEditingTaskName] = useState("");
   const [editingNotes, setEditingNotes] = useState("");
@@ -77,6 +79,9 @@ export default function App() {
   const [dailyArchive, setDailyArchive] = useState({});
   const [nextTaskMode, setNextTaskMode] = useState(false);
   const [queueSearch, setQueueSearch] = useState("");
+  const [filterFocusOnly, setFilterFocusOnly] = useState(false);
+  const [filterUrgentOnly, setFilterUrgentOnly] = useState(false);
+  const [editSortMode, setEditSortMode] = useState("default");
   const [archiveSearch, setArchiveSearch] = useState("");
   const [archiveStartDate, setArchiveStartDate] = useState("");
   const [archiveEndDate, setArchiveEndDate] = useState("");
@@ -352,8 +357,8 @@ export default function App() {
       notes,
       checklist: newTaskChecklist.filter((item) => item.text.trim() !== ""),
       done: false,
-      focus: false,
-      critical: false,
+      focus: newTaskFocus,
+      critical: newTaskCritical,
       createdAt: new Date().toISOString(),
       notesUpdatedAt: null,
     });
@@ -362,6 +367,8 @@ export default function App() {
     setTaskName("");
     setNotes("");
     setNewTaskChecklist([]);
+    setNewTaskFocus(false);
+    setNewTaskCritical(false);
   }
 
   function spawnStars(x, y) {
@@ -622,12 +629,22 @@ export default function App() {
 
   function toggleFocus(id) {
     createDailyRecoveryBackup();
-    setTasks(tasks.map((t) => (t.id === id ? { ...t, focus: !t.focus } : t)));
+    const now = new Date().toISOString();
+    setTasks(
+      tasks.map((t) =>
+        t.id === id ? normalizeTask({ ...t, focus: !t.focus, notesUpdatedAt: now }) : t
+      )
+    );
   }
 
   function toggleCritical(id) {
     createDailyRecoveryBackup();
-    setTasks(tasks.map((t) => (t.id === id ? { ...t, critical: !t.critical } : t)));
+    const now = new Date().toISOString();
+    setTasks(
+      tasks.map((t) =>
+        t.id === id ? normalizeTask({ ...t, critical: !t.critical, notesUpdatedAt: now }) : t
+      )
+    );
   }
 
   function startEdit(task) {
@@ -900,7 +917,13 @@ export default function App() {
 
   const filteredTasks = tasks.filter((t) => {
     const q = queueSearch.toLowerCase();
-    return t.name.toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q) || (t.checklist || []).some((item) => (item.text || "").toLowerCase().includes(q));
+    const matchesSearch =
+      t.name.toLowerCase().includes(q) ||
+      (t.notes || "").toLowerCase().includes(q) ||
+      (t.checklist || []).some((item) => (item.text || "").toLowerCase().includes(q));
+    const matchesFocus = !filterFocusOnly || t.focus;
+    const matchesUrgent = !filterUrgentOnly || t.critical;
+    return matchesSearch && matchesFocus && matchesUrgent;
   });
 
   let sortedTasks = [...filteredTasks];
@@ -912,6 +935,22 @@ export default function App() {
     });
   } else {
     sortedTasks = sortTasks(sortedTasks, autoSort);
+  }
+
+  if (editSortMode !== "default") {
+    const editedTasks = sortedTasks.filter((task) => task.notesUpdatedAt);
+    const uneditedTasks = sortedTasks.filter((task) => !task.notesUpdatedAt);
+
+    editedTasks.sort((a, b) => {
+      const aTime = new Date(a.notesUpdatedAt).getTime();
+      const bTime = new Date(b.notesUpdatedAt).getTime();
+      return editSortMode === "edited_oldest" ? aTime - bTime : bTime - aTime;
+    });
+
+    sortedTasks =
+      editSortMode === "edited_oldest"
+        ? [...uneditedTasks, ...editedTasks]
+        : [...editedTasks, ...uneditedTasks];
   }
 
   const archiveGroups = Object.entries(dailyArchive)
@@ -1231,6 +1270,47 @@ export default function App() {
           />
         </div>
 
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            flexWrap: "wrap",
+            alignItems: "center",
+            marginBottom: "12px",
+          }}
+        >
+          <button
+            className="pressable"
+            style={filterFocusOnly ? styles.buttonPrimary : styles.button}
+            onClick={() => setFilterFocusOnly((prev) => !prev)}
+          >
+            {isMobile ? "📌" : "📌 Focus Only"}
+          </button>
+
+          <button
+            className="pressable"
+            style={filterUrgentOnly ? styles.buttonPrimary : styles.button}
+            onClick={() => setFilterUrgentOnly((prev) => !prev)}
+          >
+            {isMobile ? "⚠️" : "⚠️ Urgent Only"}
+          </button>
+
+          <select
+            value={editSortMode}
+            onChange={(e) => setEditSortMode(e.target.value)}
+            style={{
+              ...styles.input,
+              width: isMobile ? "100%" : "auto",
+              minWidth: isMobile ? 0 : "220px",
+              marginBottom: 0,
+            }}
+          >
+            <option value="default">Edit Sort: Default</option>
+            <option value="edited_newest">Edit Sort: Newest First</option>
+            <option value="edited_oldest">Edit Sort: Oldest First</option>
+          </select>
+        </div>
+
         <NewTaskCard
           styles={styles}
           isMobile={isMobile}
@@ -1239,6 +1319,12 @@ export default function App() {
           notes={notes}
           setNotes={setNotes}
           newTaskChecklist={newTaskChecklist}
+          newTaskFocus={newTaskFocus}
+          setNewTaskFocus={setNewTaskFocus}
+          newTaskCritical={newTaskCritical}
+          setNewTaskCritical={setNewTaskCritical}
+          focusToggleStyle={focusToggleStyle}
+          urgentToggleStyle={urgentToggleStyle}
           updateNewTaskChecklistItem={updateNewTaskChecklistItem}
           deleteNewTaskChecklistItem={deleteNewTaskChecklistItem}
           addNewTaskChecklistItem={addNewTaskChecklistItem}
