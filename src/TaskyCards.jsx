@@ -146,8 +146,8 @@ export function TaskCard(props) {
 
   const isNextTask = nextTaskMode && index === 0;
   const detailsOpen = expandedDetails[task.id];
-  const hasDetails = taskHasDetails(task);
-  const hasVisibleDetails = hasDetails || Boolean(task.notesUpdatedAt);
+  const hasDetails =
+    taskHasDetails(task) || Boolean(task.notesUpdatedAt);
 
   return (
     <div
@@ -329,7 +329,7 @@ export function TaskCard(props) {
             </button>
           </div>
         </div>
-      ) : hasVisibleDetails ? (
+      ) : hasDetails ? (
         <div style={{ marginTop: "10px" }}>
           <button
             className="pressable"
@@ -520,10 +520,8 @@ export function ArchivePanel({
                   {entry.list.map((task) => {
                     const archiveNoteKey = `${entry.date}-${task.id}`;
                     const detailsOpen = expandedArchiveNotes[archiveNoteKey];
-                    const hasDetails = taskHasDetails(task);
-                    const hasVisibleDetails = hasDetails || Boolean(task.notesUpdatedAt);
-  const hasVisibleDetails = hasDetails || Boolean(task.notesUpdatedAt);
-
+                    const hasDetails =
+                      taskHasDetails(task) || Boolean(task.notesUpdatedAt);
                     return (
                       <div key={task.id} style={styles.archiveTaskRow}>
                         <div style={styles.archiveCompactCard}>
@@ -531,7 +529,7 @@ export function ArchivePanel({
                             <div style={styles.archiveTitleRow}>
                               <span style={styles.archiveTaskName}>{task.name}</span>
 
-                              {hasVisibleDetails && (
+                              {hasDetails && (
                                 <button
                                   className="pressable"
                                   style={styles.archiveInlineNoteButton}
@@ -570,7 +568,7 @@ export function ArchivePanel({
                             </div>
                           </div>
 
-                          {hasVisibleDetails && detailsOpen && (
+                          {hasDetails && detailsOpen && (
                             <div
                               style={{
                                 ...styles.noteText,
