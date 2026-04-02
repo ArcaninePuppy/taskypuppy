@@ -1239,7 +1239,7 @@ export default function App() {
             <div style={styles.mascotWrap}>
               {titleSticker ? (
                 <img
-                  src={titleSticker}
+                  src={titleSticker.src}
                   alt="Tasky Puppy mascot"
                   style={{
                     ...styles.titleSticker,
@@ -1372,13 +1372,12 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+        <div style={{ marginBottom: "12px" }}>
           <button
             className="pressable"
             style={{
               ...(showNewTaskCard ? styles.buttonPrimary : styles.button),
-              padding: "8px 14px",
-              borderRadius: "999px",
+              width: "100%",
             }}
             onClick={() => setShowNewTaskCard((prev) => !prev)}
           >

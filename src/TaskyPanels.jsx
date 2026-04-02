@@ -207,7 +207,7 @@ export function StickerPanel({
       <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
         <div style={{ display: "grid", gap: "6px" }}>
           <div style={{ ...styles.helperText, fontWeight: 700, color: theme.title }}>Sticker Sources</div>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
             <button
               className="pressable"
               onClick={() => setIncludedStickersEnabled((prev) => !prev)}
